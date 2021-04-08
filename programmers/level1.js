@@ -3,7 +3,7 @@
 // 두 개 뽑아서 더하기
 // https://programmers.co.kr/learn/courses/30/lessons/68644
 function solution(numbers) {
-  let arr = [];
+  const arr = [];
   for (let i = 0; i < numbers.length; i++) {
     for (let j = i + 1; j < numbers.length; j++) {
       arr.push(numbers[i] + numbers[j]);
@@ -28,8 +28,8 @@ function solution(participant, completion) {
 // https://programmers.co.kr/learn/courses/30/lessons/42840
 // 생각 조금 필요
 function solution(answers) {
-  let correct = [0, 0, 0];
-  let check = [];
+  const correct = [0, 0, 0];
+  const check = [];
   check[0] = [1, 2, 3, 4, 5];
   check[1] = [2, 1, 2, 3, 2, 4, 2, 5];
   check[2] = [3, 3, 1, 1, 2, 2, 4, 4, 5, 5];
@@ -41,7 +41,7 @@ function solution(answers) {
     }
   }
   const max = Math.max(...correct);
-  let answer = [];
+  const answer = [];
   for (let i = 0; i < 3; i++) {
     if (correct[i] === max) answer.push(i + 1);
   }
@@ -63,7 +63,7 @@ function solution(array, commands) {
 // https://programmers.co.kr/learn/courses/30/lessons/42862
 // 생각 필요
 function solution(n, lost, reserve) {
-  let arr = Array(n).fill(1);
+  const arr = Array(n).fill(1);
   for (let i of lost) {
     arr[i - 1] = 0;
   }
@@ -201,7 +201,7 @@ function solution(seoul) {
 // https://programmers.co.kr/learn/courses/30/lessons/12921
 // 이거는 1단계라도 생각해볼만한 문제
 function solution(n) {
-  let arr = Array(n + 1).fill(1);
+  const arr = Array(n + 1).fill(1);
   (arr[0] = 0), (arr[1] = 0);
   for (let i = 2; i <= n; i++) {
     if (arr[i] !== 0) {
