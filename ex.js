@@ -1,34 +1,28 @@
-const getPermutations = (arr, selectNumber) => {
-  if (selectNumber === 1) return arr.map((i) => [i]); // 1개씩 선택한다면 모든 배열의 원소를 return한다.
-  const results = [];
-  arr.forEach((fixed, index, array) => {
-    const rest = arr.slice(0, index).concat(arr.slice(index + 1)); // fixed를 제외한 나머지 배열(순열)
-    const permutations = getPermutations(rest, selectNumber - 1); // rest에 대한 순열을 구한다.
-    const attached = permutations.map((permutation) => [fixed, ...permutation]); // fixed와 rest에 대한 조합을 붙인다.
-    results.push(...attached); // result 배열에 push
-  });
-  return results;
-};
-
-const isPrime = (n) => {
-  if (n < 2) return false;
-  for (let i = 2; i < n; i++) {
-    if (n % i === 0) return false;
+function solution(jobs) {
+  const arr = [];
+  let time = 0;
+  jobs.sort((a, b) => a[0] - b[0]);
+  while (jobs.length) {
+    if (time < jobs[0][0]) {
+      time = jobs[0][0];
+    }
+    let min = [0, time - jobs[0][0] + jobs[0][1], jobs[0][1]];
+    for (let i = 0; i < jobs.length; i++) {
+      if (jobs[i][0] > time) break;
+      if (min[2] > jobs[i][1])
+        min = [i, time - jobs[i][0] + jobs[i][1], jobs[i][1]];
+    }
+    time += jobs[min[0]][1];
+    arr.push(min[1]);
+    jobs.splice(min[0], 1);
   }
-  return true;
-};
-
-function solution(numbers) {
-  let permutation = [];
-  for (let i = 1; i <= numbers.length; i++) {
-    permutation.push(...getPermutations(numbers.split(''), i));
-  }
-  permutation = permutation.map((v) => +v.join(''));
-  permutation = [...new Set(permutation)];
-  return permutation.reduce((acc, cur) => {
-    return isPrime(cur) ? acc + 1 : acc;
-  }, 0);
+  return Math.floor(arr.reduce((acc, cur) => acc + cur, 0) / arr.length);
 }
 
-console.log(solution('17')); //3
-console.log(solution('011')); //2
+console.log(
+  solution([
+    [0, 3],
+    [1, 9],
+    [2, 6],
+  ])
+);

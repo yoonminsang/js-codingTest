@@ -406,3 +406,10 @@ process.stdin.on('data', (data) => {
       .join('\n')
   );
 });
+
+// 음양 더하기
+// https://programmers.co.kr/learn/courses/30/lessons/76501
+function solution(absolutes, signs) {
+  signs = signs.map((v) => (v ? 1 : -1));
+  return absolutes.reduce((acc, cur, idx) => acc + cur * signs[idx], 0);
+}
