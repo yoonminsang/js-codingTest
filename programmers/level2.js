@@ -396,7 +396,7 @@ function solution(land) {
 
 // 게임 맴 최단거리 ★
 // https://programmers.co.kr/learn/courses/30/lessons/1844
-// 이거 풀수있는데 어려워
+// 이거 풀수있는데 어려워 bfs
 // momveY, X로 코드 가독성, 단순화. 이거안하면 코드가 4배 더 생겨
 function solution(maps) {
   const queue = [[0, 0, 1]];

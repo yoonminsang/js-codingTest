@@ -144,3 +144,108 @@ function solution(jobs) {
 
 // 섬 연결하기 / 탐욕법(Greedy)
 // https://programmers.co.kr/learn/courses/30/lessons/42861
+// prime 알고리즘과 union find 알고리즘을 알아야 한다.
+// prime 알고리즘은 그래프에서 비용이 적은 것부터 정렬해서 추가하는 알고리즘이다.
+// 이 때 사이클을 만들면 안된다.
+// 사이클이 만들어지는지 확인하는 알고리즘이 union find 알고리즘이다.
+// 사이클이 만들어지는지 확인하기 위해서 부모 배열을 만든다.
+// 부모 배열은 처음에 각각의 그래프 점(문제에서는 숫자)으로 할당한다.
+// 부모를 작은 인덱스로 만든다면 0과 1이 연결됬을때 [0,0,~~] 이런 형태가 된다.
+// 부모를 구하는 함수는 재귀로 만드는게 편하다.
+// unionParent 함수로 부모를 합치고 findParent 함수로 부모가 같은지 확인한다.
+const getParent = (parent, v) => {
+  if (parent[v] === v) return v;
+  return getParent(parent, parent[v]);
+};
+
+const unionParent = (parent, a, b) => {
+  a = getParent(parent, a);
+  b = getParent(parent, b);
+  a < b ? (parent[b] = a) : (parent[a] = b);
+};
+
+const findParent = (parent, a, b) => {
+  return getParent(parent, a) === getParent(parent, b);
+};
+
+function solution(n, costs) {
+  costs.sort((a, b) => a[2] - b[2]);
+  const arr = [];
+  const parent = Array(n)
+    .fill()
+    .map((v, i) => i);
+  let i = 0;
+  while (arr.length !== n - 1) {
+    if (!findParent(parent, costs[i][0], costs[i][1])) {
+      unionParent(parent, costs[i][0], costs[i][1]);
+      arr.push(costs[i]);
+    }
+    i++;
+  }
+  return arr.reduce((acc, cur) => acc + cur[2], 0);
+}
+
+// 가장 먼 노드 그래프
+// 복잡하게 생각하지 말자. 자료구조 알고리즘 기본을 생각
+// 당연히 그래프 문제니 그래프를 만들어서 푸는게 직관적이고 헷갈리지 않다.
+// reduce나 foreach문에 배열을 인자로 넣을수도 있다. 귀찮게 안에서 작업하지 말자
+// 2차원 배열을 그래프로 만드는 방법은 여러 방법이 있다.
+// 주석 부분은 점이 n부터 m까지처럼 정해지지 않았을때 유용하다.
+// 시간은 주석을 치지 않은 부분이 빠르다.
+// 단방향, 양방향 등등 다양하게 만들 수 있다.
+function solution(n, edge) {
+  // const graph = edge.reduce((acc, [from, to]) => {
+  //     acc[from] = (acc[from] || []).concat(to);
+  //     acc[to] = (acc[to] || []).concat(from);
+  //     return acc;
+  // }, {});
+  const graph = Array(n)
+    .fill()
+    .reduce((acc, cur, idx) => {
+      acc[idx + 1] = [];
+      return acc;
+    }, {});
+  edge.forEach(([from, to]) => {
+    graph[from].push(to);
+    graph[to].push(from);
+  });
+  const visit = { 1: true };
+  const dist = { 1: 0 };
+  const queue = [1];
+  while (queue.length) {
+    const currentNode = queue.shift();
+    graph[currentNode].forEach((v) => {
+      if (!visit[v]) {
+        visit[v] = true;
+        queue.push(v);
+        dist[v] = dist[currentNode] + 1;
+      }
+    });
+  }
+  const distValue = Object.values(dist);
+  const max = Math.max(...distValue);
+  return distValue.filter((v) => v === max).length;
+}
+
+// 여행경로 / 깊이/너비 우선 탐색(DFS/BFS)
+// https://programmers.co.kr/learn/courses/30/lessons/43164
+// 방향이 있고 중복을 허용하지 않는 그래프에서 dfs를 사용하는 문제다.
+// 중복을 허용하지 않는다는 점때문에 객체로 그래프를 만들면 더 복잡해져서
+// 2차원배열을 그대로 이용해서 풀었다.
+function solution(tickets) {
+  const answer = [];
+  const dfs = (ticket, arr) => {
+    if (ticket.length === 0) answer.push(arr);
+    const currentNode = arr[arr.length - 1];
+    ticket.forEach(([from, to], idx) => {
+      if (from === currentNode) {
+        dfs(
+          ticket.filter((v, i) => i !== idx),
+          arr.concat(to)
+        );
+      }
+    });
+  };
+  dfs(tickets, ['ICN']);
+  return answer.sort()[0];
+}
