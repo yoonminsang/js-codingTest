@@ -142,7 +142,7 @@ function solution(jobs) {
   return Math.floor(arr.reduce((acc, cur) => acc + cur, 0) / arr.length);
 }
 
-// 섬 연결하기 / 탐욕법(Greedy)
+// 섬 연결하기 / 탐욕법(Greedy) ★
 // https://programmers.co.kr/learn/courses/30/lessons/42861
 // prime 알고리즘과 union find 알고리즘을 알아야 한다.
 // prime 알고리즘은 그래프에서 비용이 적은 것부터 정렬해서 추가하는 알고리즘이다.
@@ -248,4 +248,46 @@ function solution(tickets) {
   };
   dfs(tickets, ['ICN']);
   return answer.sort()[0];
+}
+
+// 순위 / 그래프
+// https://programmers.co.kr/learn/courses/30/lessons/49191
+// 쉬운 문젠데 조금 헷갈렸다...
+// 먼저 그래프를 만들고 win<n<lose 에서 lose의 배열에 win 배열을 추가하고 win의 배열에 lose의 배열을 추가하면 된다.
+function solution(n, results) {
+  const graph = Array(n)
+    .fill()
+    .map(() => [[], []]);
+  results.forEach(([win, lose]) => {
+    graph[win - 1][0].push(lose);
+    graph[lose - 1][1].push(win);
+  });
+  graph.forEach((a) => {
+    a[0].forEach(
+      (v) => (graph[v - 1][1] = [...new Set(graph[v - 1][1].concat(...a[1]))])
+    );
+    a[1].forEach(
+      (v) => (graph[v - 1][0] = [...new Set(graph[v - 1][0].concat(...a[0]))])
+    );
+  });
+  return graph.reduce((acc, cur) => {
+    if (cur.flat().length === n - 1) return acc + 1;
+    return acc;
+  }, 0);
+}
+
+// 이중우선순위큐 /힙(Heap)
+// https://programmers.co.kr/learn/courses/30/lessons/42628
+function solution(operations) {
+  const queue = [];
+  operations.forEach((v) => {
+    if (v === 'D -1') queue.pop();
+    else if (v === 'D 1') queue.shift();
+    else {
+      queue.push(+v.slice(2));
+      queue.sort((a, b) => b - a);
+    }
+  });
+  if (queue.length === 0) return [0, 0];
+  return [queue[0], queue[queue.length - 1]];
 }
