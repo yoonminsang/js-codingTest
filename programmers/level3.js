@@ -291,3 +291,226 @@ function solution(operations) {
   if (queue.length === 0) return [0, 0];
   return [queue[0], queue[queue.length - 1]];
 }
+
+// 베스트앨범 / 해시
+// https://programmers.co.kr/learn/courses/30/lessons/42579
+// 더 간단하게 만들수있는데 그렇게 하면 오히려
+// 가독성이 너무 떨어지고 어려워서 이정도로만..
+function solution(genres, plays) {
+  const obj = genres.reduce((acc, cur, idx) => {
+    if (!acc[cur]) acc[cur] = [[plays[idx], idx]];
+    else acc[cur].push([plays[idx], idx]);
+    return acc;
+  }, {});
+  for (let key in obj) {
+    obj[key].sort((a, b) => {
+      if (a[0] === b[0]) return a[1] - b[1];
+      else return b[0] - a[0];
+    });
+  }
+  // console.log(obj);
+  const keys = Object.keys(obj);
+  let sum = keys
+    .map((v) => obj[v].reduce((acc, cur) => acc + cur[0], 0))
+    .map((v, i) => [v, keys[i]]);
+  sum.sort((a, b) => b[0] - a[0]);
+  // console.log(sum);
+  const answer = [];
+  sum.forEach(([sum, genre]) => {
+    for (let i = 0; i < 2 && i < obj[genre].length; i++) {
+      answer.push(obj[genre][i][1]);
+    }
+  });
+  return answer;
+}
+
+// 입국심사 / 이분탐색
+// https://programmers.co.kr/learn/courses/30/lessons/43238
+function solution(n, times) {
+  let l = 1,
+    r = n * Math.max(...times);
+  while (l <= r) {
+    let mid = Math.floor((l + r) / 2);
+    const count = times.reduce((acc, cur) => acc + Math.floor(mid / cur), 0);
+    if (count >= n) r = mid - 1;
+    else l = mid + 1;
+  }
+  return l;
+}
+
+// 단속카메라 / 탐욕법(Greedy)
+// https://programmers.co.kr/learn/courses/30/lessons/42884
+// 인덱스가 조금 헷갈릴 수 있는 문제다.
+// 시험에서 한번 잘못생각하면 골치아플듯
+function solution(routes) {
+  routes.sort((a, b) => a[1] - b[1]);
+  let camera = -30001;
+  let answer = 0;
+  for (let route of routes) {
+    if (camera < route[0]) {
+      camera = route[1];
+      answer++;
+    }
+  }
+  return answer;
+}
+
+// 가장 긴 팰린드롬
+// https://programmers.co.kr/learn/courses/30/lessons/12904
+// 길이가 가장 긴것부터 시작해서 for문을 돌렸다.
+// 주석 친 식이 편하긴 한데 효율성 실패한다.
+// 그래서 앞이랑 뒤에서 하나씩 비교해줬다.
+function solution(s) {
+  const len = s.length;
+  for (let n = len; n > 0; n--) {
+    for (let l = 0; l <= len - n; l++) {
+      // let r=l+n;
+      // if(s.slice(l,r)===s.slice(l,r).split('').reverse().join('')) return n;
+      let r = l + n - 1;
+      let m = (l + r) / 2;
+      let tf = true;
+      for (let i = l; i <= m; i++, r--) {
+        if (s[i] !== s[r]) {
+          tf = false;
+          break;
+        }
+      }
+      if (tf) return n;
+    }
+  }
+}
+
+// 거스름돈 ★
+// https://programmers.co.kr/learn/courses/30/lessons/12907
+// dp 문제 너무 어렵다
+
+// 멀리뛰기
+// https://programmers.co.kr/learn/courses/30/lessons/12914
+// dp문제. 이건 그나마 쉽다.
+// dp[i-1]에서 한 칸을 더 뛴 값 + dp[i-2]에서 두 칸을 더 뛴 값이 dp[i]가 되므로
+// dp[i]=dp[i-1]+dp[i-2]라는 식이 나온다.
+function solution(n) {
+  const dp = [0, 1, 2];
+  for (let i = 3; i <= n; i++) {
+    dp[i] = (dp[i - 1] + dp[i - 2]) % 1234567;
+  }
+  return dp[n];
+}
+
+// 야근지수
+// https://programmers.co.kr/learn/courses/30/lessons/12927
+// 그냥 sort를 하거나 max를 찾으면 효율성 초과가 뜬다.
+// 그래서 인덱스를 조절해주면서 작업을 해야한다.
+function solution(n, works) {
+  if (works.reduce((acc, cur) => acc + cur, 0) <= n) return 0;
+  works.sort((a, b) => b - a);
+  let index = 0;
+  while (n) {
+    if (works[index] < works[index + 1]) {
+      index++;
+      continue;
+    } else if (works[index - 1] === works[index]) {
+      index = 0;
+      continue;
+    }
+    works[index] -= 1;
+    n--;
+  }
+  const answer = works.reduce((acc, cur) => acc + cur ** 2, 0);
+  return answer < 0 ? 0 : answer;
+}
+
+// 줄 서는 방법
+// https://programmers.co.kr/learn/courses/30/lessons/12936
+// permutation 사용하니 효율성 초과
+// 아래 코드에서는 팩토리얼을 사용해서 해당 부분의 값들만 가져왔다.
+const getPermutations = (arr, selectNumber) => {
+  if (selectNumber === 1) return arr.map((v) => [v]);
+  const result = [];
+  arr.forEach((v, i) => {
+    const rest = arr.slice(0, i).concat(arr.slice(i + 1));
+    const permutations = getPermutations(rest, selectNumber - 1);
+    const attached = permutations.map((permutation) => [v, ...permutation]);
+    result.push(...attached);
+  });
+  return result;
+};
+
+function solution(n, k) {
+  const arr = Array(n)
+    .fill()
+    .map((v, i) => i + 1);
+  const permutation = getPermutations(arr, n);
+  return permutation[k - 1];
+}
+
+// 수정버전
+const getFactorial = (n) => {
+  let result = 1;
+  for (let i = 1; i <= n; i++) {
+    result *= i;
+  }
+  return result;
+};
+
+function solution(n, k) {
+  const answer = [];
+  const arr = Array(n)
+    .fill()
+    .map((v, i) => i + 1);
+  let nn = n;
+  while (answer.length !== n) {
+    nn--;
+    const facto = getFactorial(nn);
+    const index = Math.ceil(k / facto) - 1;
+    answer.push(arr.splice(index, 1));
+    k -= facto * index;
+  }
+  return answer.flat();
+}
+
+// 최고의 집합
+// https://programmers.co.kr/learn/courses/30/lessons/12938
+function solution(n, s) {
+  if (n > s) return [-1];
+  const answer = [];
+  for (n; n > 0; n--) {
+    const num = Math.floor(s / n);
+    answer.push(num);
+    s -= num;
+  }
+  return answer;
+}
+
+// 하노이의 탑 ★
+// https://programmers.co.kr/learn/courses/30/lessons/12946
+// 너무 어렵다..
+
+// N-Queen
+// https://programmers.co.kr/learn/courses/30/lessons/12952
+function solution(n) {
+  let answer = 0;
+  const isValidate = (arr, n, row, column) => {
+    for (let i = 0; i < arr.length; i++) {
+      const diff = row - i;
+      if (
+        arr[i] === column ||
+        column === arr[i] + diff ||
+        column === arr[i] - diff
+      )
+        return false;
+    }
+    return true;
+  };
+  const dfs = (arr, n, row) => {
+    if (row === n - 1) answer++;
+    for (let column = 0; column < n; column++) {
+      if (isValidate(arr, n, row + 1, column))
+        dfs(arr.concat(column), n, row + 1);
+    }
+  };
+  for (let i = 0; i < n; i++) {
+    dfs([i], n, 0);
+  }
+  return answer;
+}
