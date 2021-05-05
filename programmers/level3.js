@@ -383,6 +383,41 @@ function solution(s) {
 // 거스름돈 ★
 // https://programmers.co.kr/learn/courses/30/lessons/12907
 // dp 문제 너무 어렵다
+// 첫번째 관문. 점화식을 세워야 한다. 이것도 어려운데 이렇게 해도 효율성 실패
+// i를 money.length라고 했을 때
+// a(n,i)=a(n,i-1)+a(n-a[i-1],i-1)+a(n-a[i-1]*2,i-1)+....(n-a[i-1]*x가 0보다 크거나 같을때까지)
+function solution(n, money) {
+  const dp = (n, money) => {
+    if (money.length === 1) {
+      if (n % money[0] === 0) return 1;
+      else return 0;
+    } else {
+      const index = Math.floor(n / money[money.length - 1]);
+      let acc = 0;
+      for (let i = 0; i <= index; i++) {
+        acc += dp(
+          n - money[money.length - 1] * i,
+          money.slice(0, money.length - 1)
+        );
+      }
+      return acc;
+    }
+  };
+  return dp(n, money);
+}
+// 시간복잡도를 n^2으로 줄이고 배열을 이용해서 공간 복잡도도 줄인 방법이다.
+// 위의 점화식을 기본으로 알고 있어야 이 코드를 만들 수 있다.
+// arr[i]는 money를 이용해서 i를 만드는 방법의 개수이다.
+// 자세한 내용은 영상으로 올리겠다.
+function solution(n, money) {
+  const arr = [1].concat(Array(n).fill(0));
+  money.forEach((v) => {
+    for (let i = v; i <= n; i++) {
+      arr[i] += arr[i - v];
+    }
+  });
+  return arr[n];
+}
 
 // 멀리뛰기
 // https://programmers.co.kr/learn/courses/30/lessons/12914
@@ -485,12 +520,26 @@ function solution(n, s) {
 // 하노이의 탑 ★
 // https://programmers.co.kr/learn/courses/30/lessons/12946
 // 너무 어렵다..
+// 영상을 찍어서 첨부하겠다.
+function solution(n) {
+  const answer = [];
+  const hanoi = (num, from, via, to) => {
+    if (num === 1) answer.push([from, to]);
+    else {
+      hanoi(num - 1, from, to, via);
+      answer.push([from, to]);
+      hanoi(num - 1, via, from, to);
+    }
+  };
+  hanoi(n, 1, 2, 3);
+  return answer;
+}
 
 // N-Queen
 // https://programmers.co.kr/learn/courses/30/lessons/12952
 function solution(n) {
   let answer = 0;
-  const isValidate = (arr, n, row, column) => {
+  const isValidate = (arr, row, column) => {
     for (let i = 0; i < arr.length; i++) {
       const diff = row - i;
       if (

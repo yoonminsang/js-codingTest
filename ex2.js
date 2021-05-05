@@ -1,13 +1,12 @@
-function solution(n, s) {
-  if (n > s) return [-1];
-  const answer = [];
-  while (answer.length !== n) {
-    const num = Math.floor(s / n);
-    answer.push(num);
-    s -= num;
-    n--;
-    console.log(num, answer, s);
+var a = [
+  ['cpp', 'java', 'python'],
+  ['backend', 'frontend'],
+  ['junior', 'senior'],
+  'chicken',
+  '100',
+];
+const arr = [];
+a.forEach((v) => {
+  if (typeof v === 'object') {
   }
-  return answer;
-}
-console.log(solution(2, 8));
+});
