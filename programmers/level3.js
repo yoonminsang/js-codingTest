@@ -144,8 +144,8 @@ function solution(jobs) {
 
 // 섬 연결하기 / 탐욕법(Greedy) ★
 // https://programmers.co.kr/learn/courses/30/lessons/42861
-// prime 알고리즘과 union find 알고리즘을 알아야 한다.
-// prime 알고리즘은 그래프에서 비용이 적은 것부터 정렬해서 추가하는 알고리즘이다.
+// kruskal 알고리즘과 union find 알고리즘을 알아야 한다. (prim도 가능. 아래에 있다.)
+// kruskal 알고리즘은 그래프에서 비용이 적은 것부터 정렬해서 추가하는 알고리즘이다.
 // 이 때 사이클을 만들면 안된다.
 // 사이클이 만들어지는지 확인하는 알고리즘이 union find 알고리즘이다.
 // 사이클이 만들어지는지 확인하기 위해서 부모 배열을 만든다.
@@ -184,8 +184,94 @@ function solution(n, costs) {
   }
   return arr.reduce((acc, cur) => acc + cur[2], 0);
 }
+// 프림 알고리즘
+class Graph {
+  constructor() {
+    this.edges = {};
+  }
+  addVertex(vertex) {
+    this.edges[vertex] = {};
+  }
+  addEdge(vertex1, vertex2, weight = 0) {
+    this.edges[vertex1][vertex2] = weight;
+    this.edges[vertex2][vertex1] = weight;
+  }
+  Prim(vertex) {
+    const copy = JSON.parse(JSON.stringify(this.edges));
+    const obj = Object.keys(this.edges).reduce((acc, cur) => {
+      acc[cur] = {};
+      return acc;
+    }, {});
+    const visited = Object.keys(this.edges).reduce((acc, cur) => {
+      acc[cur] = false;
+      return acc;
+    }, {});
+    let minNodeFrom = vertex,
+      minNodeTo = null,
+      min = Infinity;
+    for (let adj in copy[vertex]) {
+      if (copy[vertex][adj] < min) {
+        minNodeTo = +adj;
+        min = +copy[vertex][adj];
+      }
+    }
+    visited[minNodeFrom] = true;
+    visited[minNodeTo] = true;
+    obj[minNodeFrom][minNodeTo] = min;
+    obj[minNodeTo][minNodeFrom] = min;
+    delete copy[minNodeFrom][minNodeTo];
+    delete copy[minNodeTo][minNodeFrom];
+    for (let i = 1; i < Object.keys(this.edges).length - 1; i++) {
+      let minNodeFrom = null,
+        minNodeTo = null,
+        min = Infinity;
+      const arr = [];
+      Object.keys(obj).forEach((v) => {
+        if (Object.keys(obj[v]).length !== 0) arr.push(v);
+      });
+      arr.forEach((v) => {
+        for (let adj in copy[v]) {
+          if (!visited[adj] && copy[v][adj] < min) {
+            minNodeFrom = +v;
+            minNodeTo = +adj;
+            min = +copy[v][adj];
+          }
+        }
+      });
+      visited[minNodeFrom] = true;
+      visited[minNodeTo] = true;
+      obj[minNodeFrom][minNodeTo] = min;
+      obj[minNodeTo][minNodeFrom] = min;
+      delete copy[minNodeFrom][minNodeTo];
+      delete copy[minNodeTo][minNodeFrom];
+    }
+    return obj;
+  }
+}
+const findParent = (parent, a, b) => {
+  return getParent(parent, a) === getParent(parent, b);
+};
 
-// 가장 먼 노드 그래프
+function solution(n, costs) {
+  const graph = new Graph();
+  for (let i = 0; i < n; i++) {
+    graph.addVertex(i);
+  }
+  costs.forEach(([from, to, weight]) => {
+    graph.addEdge(from, to, weight);
+  });
+  const prim = graph.Prim(0);
+  let count = 0;
+  for (let i in prim) {
+    for (let j in prim[i]) {
+      count += graph.edges[i][j];
+    }
+  }
+  return count / 2;
+}
+
+// 가장 먼 노드 / 그래프
+// https://programmers.co.kr/learn/courses/30/lessons/49189
 // 복잡하게 생각하지 말자. 자료구조 알고리즘 기본을 생각
 // 당연히 그래프 문제니 그래프를 만들어서 푸는게 직관적이고 헷갈리지 않다.
 // reduce나 foreach문에 배열을 인자로 넣을수도 있다. 귀찮게 안에서 작업하지 말자

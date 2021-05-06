@@ -60,7 +60,7 @@ function solution(orders, course) {
 
 // 3 순위 검색
 // https://programmers.co.kr/learn/courses/30/lessons/72412
-// 효율성 실패
+// 시도 1. 효율성 실패
 function solution(info, query) {
   const answer = [];
   info = info.map((v) => v.split(' '));
@@ -78,102 +78,149 @@ function solution(info, query) {
   });
   return answer;
 }
-// function solution(info, query) {
-//   info = info.map((v) => v.split(' '));
-//   // console.log(info);
-//   query = query.map((v) =>
-//     v.replace(/and/g, '').replace(/\s{2}/g, ' ').split(' ')
-//   );
-//   // console.log(query);
-//   const arr = [];
-//   query.forEach((v) => {
-//     let count = 0;
-//     for (let i = 0; i < info.length; i++) {
-//       let tf = true;
-//       for (let j = 0; j < 4; j++) {
-//         if (v[j] !== '-' && info[i][j] !== v[j]) {
-//           tf = false;
-//           break;
-//         }
-//       }
-//       if (tf && +info[i][4] >= +v[4]) {
-//         count++;
-//       }
-//     }
-//     arr.push(count);
-//   });
-//   // console.log(arr);
-//   return arr;
-// }
-
-// // 효울성 실패2
-// function solution(info, query) {
-//   const case_ = [];
-//   const ar1 = ['cpp', 'java', 'python'],
-//     ar2 = ['backend', 'frontend'],
-//     ar3 = ['junior', 'senior'],
-//     ar4 = ['chicken', 'pizza'];
-//   for (let i = 0; i < 3; i++) {
-//     for (let j = 0; j < 2; j++) {
-//       for (let k = 0; k < 2; k++) {
-//         for (let l = 0; l < 2; l++) {
-//           case_.push([ar1[i], ar2[j], ar3[k], ar4[l]]);
-//         }
-//       }
-//     }
-//   }
-//   // console.log('case_', case_);
-//   info = info.map((v) => v.split(' '));
-//   // console.log('info', info);
-//   const info_arr = [];
-//   info.forEach((v) => {
-//     for (let i = 0; i < case_.length; i++) {
-//       if (case_[i].toString() === v.slice(0, 4).toString()) {
-//         info_arr.push([i, +v[4]]);
-//         break;
-//       }
-//     }
-//   });
-//   info_arr.sort((a, b) => (a[0] === b[0] ? b[1] - a[1] : b[0] - a[0]));
-//   // console.log('info_arr', info_arr);
-//   query = query.map((v) =>
-//     v.replace(/and/g, '').replace(/\s{2}/g, ' ').split(' ')
-//   );
-//   // console.log('query', query);
-//   const answer = [];
-//   query.forEach((v) => {
-//     const query_arr = [];
-//     const all_arr = [];
-//     for (let i = 0; i < 4; i++) {
-//       if (v[i] === '-') all_arr.push(i);
-//     }
-//     // console.log('query[i]', v, 'all_arr', all_arr);
-//     for (let i = 0; i < case_.length; i++) {
-//       const all_arr_slice = all_arr.slice();
-//       for (let j = 0; j < 4; j++) {
-//         // console.log(i, j);
-//         if (all_arr_slice[0] === j) {
-//           if (j === 3) query_arr.push([i, +v[4]]);
-//           all_arr_slice.shift();
-//           continue;
-//         }
-//         if (v[j] !== case_[i][j]) {
-//           break;
-//         }
-//         if (j === 3) {
-//           query_arr.push([i, +v[4]]);
-//         }
-//       }
-//     }
-//     // console.log('query_arr', query_arr);
-//     let count = 0;
-//     query_arr.forEach((v) => {
-//       count += info_arr.filter((v2) => v2[0] === v[0] && v2[1] >= v[1]).length;
-//     });
-//     answer.push(count);
-//   });
-//   return answer;
-// }
+// 시도 2. 효율성 실패
+// 모든 경우의 객체를 만들어 놓고 filter함수로 개수를 가져왔다.
+function solution(info, query) {
+  const answer = [];
+  const arr = [
+    ['-', 'cpp', 'java', 'python'],
+    ['-', 'backend', 'frontend'],
+    ['-', 'junior', 'senior'],
+    ['-', 'chicken', 'pizza'],
+  ];
+  const obj = {};
+  for (let a = 0; a < arr[0].length; a++) {
+    for (let b = 0; b < arr[1].length; b++) {
+      for (let c = 0; c < arr[2].length; c++) {
+        for (let d = 0; d < arr[3].length; d++) {
+          const v =
+            arr[0][a] + ' ' + arr[1][b] + ' ' + arr[2][c] + ' ' + arr[3][d];
+          obj[v] = [];
+        }
+      }
+    }
+  }
+  info.forEach((v) => {
+    const index = v.lastIndexOf(' ');
+    const arr = v.slice(0, index).split(' ');
+    for (let a = 0; a <= 1; a++) {
+      for (let b = 0; b <= 1; b++) {
+        for (let c = 0; c <= 1; c++) {
+          for (let d = 0; d <= 1; d++) {
+            const temp = [];
+            if (a) temp.push(arr[0]);
+            else temp.push('-');
+            if (b) temp.push(arr[1]);
+            else temp.push('-');
+            if (c) temp.push(arr[2]);
+            else temp.push('-');
+            if (d) temp.push(arr[3]);
+            else temp.push('-');
+            obj[temp.join(' ')].push(+v.slice(index + 1));
+          }
+        }
+      }
+    }
+  });
+  query.forEach((v) => {
+    const full = v.replace(/\sand\s/g, ' ');
+    const index = full.lastIndexOf(' ');
+    const str = full.slice(0, index);
+    const num = +full.slice(index + 1);
+    console.log(full, index, str, num);
+    answer.push(obj[str].filter((v) => v >= num).length);
+  });
+  return answer;
+}
+// 시도 3. 효율성 성공
+// obj의 각 배열들을 정렬하고 이진탐색을 추가하니 효율성이 풀렸다.
+// 이게 2단계라니 말도 안돼...
+// for문, if문 떡칠했는데 아마 더 좋은 방법이 있을것같다.
+function solution(info, query) {
+  const answer = [];
+  const arr = [
+    ['-', 'cpp', 'java', 'python'],
+    ['-', 'backend', 'frontend'],
+    ['-', 'junior', 'senior'],
+    ['-', 'chicken', 'pizza'],
+  ];
+  const obj = {};
+  for (let a = 0; a < arr[0].length; a++) {
+    for (let b = 0; b < arr[1].length; b++) {
+      for (let c = 0; c < arr[2].length; c++) {
+        for (let d = 0; d < arr[3].length; d++) {
+          const v =
+            arr[0][a] + ' ' + arr[1][b] + ' ' + arr[2][c] + ' ' + arr[3][d];
+          obj[v] = [];
+        }
+      }
+    }
+  }
+  // console.log(obj);
+  info.forEach((v) => {
+    const index = v.lastIndexOf(' ');
+    const arr = v.slice(0, index).split(' ');
+    for (let a = 0; a <= 1; a++) {
+      for (let b = 0; b <= 1; b++) {
+        for (let c = 0; c <= 1; c++) {
+          for (let d = 0; d <= 1; d++) {
+            const temp = [];
+            if (a) temp.push(arr[0]);
+            else temp.push('-');
+            if (b) temp.push(arr[1]);
+            else temp.push('-');
+            if (c) temp.push(arr[2]);
+            else temp.push('-');
+            if (d) temp.push(arr[3]);
+            else temp.push('-');
+            obj[temp.join(' ')].push(+v.slice(index + 1));
+          }
+        }
+      }
+    }
+  });
+  Object.values(obj).map((v) => v.sort((a, b) => b - a));
+  // console.log(obj);
+  query.forEach((v) => {
+    const full = v.replace(/\sand\s/g, ' ');
+    const index = full.lastIndexOf(' ');
+    const str = full.slice(0, index);
+    const num = +full.slice(index + 1);
+    // console.log(full, index, str, num);
+    let l = 0,
+      r = obj[str].length - 1;
+    while (l <= r) {
+      let mid = Math.floor((l + r) / 2);
+      if (obj[str][mid] >= num) {
+        l = mid + 1;
+      } else {
+        r = mid - 1;
+      }
+    }
+    answer.push(l);
+  });
+  return answer;
+}
+console.log(
+  solution(
+    [
+      'java backend junior pizza 150',
+      'python frontend senior chicken 210',
+      'python frontend senior chicken 150',
+      'cpp backend senior pizza 260',
+      'java backend junior chicken 80',
+      'python backend senior chicken 50',
+    ],
+    [
+      'java and backend and junior and pizza 100',
+      'python and frontend and senior and chicken 200',
+      'cpp and - and senior and pizza 250',
+      '- and backend and senior and - 150',
+      '- and - and - and chicken 100',
+      '- and - and - and - 150',
+    ]
+  )
+);
 
 // 4 효율성 실패
 class Graph {
