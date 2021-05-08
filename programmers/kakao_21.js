@@ -222,7 +222,8 @@ console.log(
   )
 );
 
-// 4 효율성 실패
+// 4 합승 택시 요금
+// 다익스트라 효율성 실패
 class Graph {
   constructor() {
     this.edges = {};
@@ -230,64 +231,196 @@ class Graph {
   addVertex(vertex) {
     this.edges[vertex] = {};
   }
-  addEdge(vertex1, vertex2, weight) {
-    if (!weight) weight = 0; // 가중치가 없다면 weight를 빼고 0으로 대체
+  addEdge(vertex1, vertex2, weight = 0) {
     this.edges[vertex1][vertex2] = weight;
-    this.edges[vertex2][vertex1] = weight; // 지향성이라면 제거
+    this.edges[vertex2][vertex1] = weight;
   }
   Dijkstra(start) {
-    const copyEdges = () => {
-      let Q = {};
-      for (let vertex in this.edges) {
-        Q[vertex] = this.edges[vertex];
-      }
-      return Q;
-    };
-    const makeInfinity = () => {
-      let dist = {};
-      for (let vertex in this.edges) {
-        dist[vertex] = Infinity;
-      }
-      return dist;
-    };
-    const findMin = (Q, dist) => {
-      let minDist = Infinity,
-        nodeMinDist = null;
+    const extractMin = (Q, dist) => {
+      let minDistNode = null,
+        minDist = Infinity;
       for (let node in Q) {
         if (dist[node] <= minDist) {
           minDist = dist[node];
-          nodeMinDist = node;
+          minDistNode = node;
         }
       }
-      return nodeMinDist;
+      return minDistNode;
     };
-    let Q = copyEdges(),
-      dist = makeInfinity();
+    const Q = { ...this.edges },
+      dist = {};
+    for (let vertex in this.edges) {
+      dist[vertex] = Infinity;
+    }
     dist[start] = 0;
     while (Object.keys(Q).length !== 0) {
-      let min = findMin(Q, dist);
-      delete Q[min];
-      for (let edge in this.edges[min]) {
-        let alt = dist[min] + this.edges[min][edge];
-        if (alt < dist[edge]) dist[edge] = alt;
+      const u = extractMin(Q, dist);
+      delete Q[u];
+      for (let adj in this.edges[u]) {
+        const alt = dist[u] + this.edges[u][adj];
+        if (alt < dist[adj]) dist[adj] = alt;
       }
     }
     return dist;
   }
 }
+
 function solution(n, s, a, b, fares) {
   const graph = new Graph();
   for (let i = 1; i <= n; i++) {
     graph.addVertex(i);
   }
-  fares.forEach((v) => {
-    graph.addEdge(v[0], v[1], v[2]);
+  fares.forEach(([from, to, weight]) => {
+    graph.addEdge(from, to, weight);
   });
+  const start = graph.Dijkstra(s);
   const arr = [];
   for (let i = 1; i <= n; i++) {
-    const dijkstra = graph.Dijkstra(i);
-    const diplus = graph.Dijkstra(s)[i];
-    arr.push(diplus + dijkstra[a] + dijkstra[b]);
+    const di = graph.Dijkstra(i);
+    arr.push(start[i] + di[a] + di[b]);
   }
   return Math.min(...arr);
+}
+
+// 플로이드 워셜 성공
+function solution(n, s, a, b, fares) {
+  const path = Array.from({ length: n }, (v1, i) =>
+    Array.from({ length: n }, (v2, j) => (i === j ? 0 : Infinity))
+  );
+  fares.forEach(([from, to, fee]) => {
+    path[from - 1][to - 1] = fee;
+    path[to - 1][from - 1] = fee;
+  });
+  for (let mid = 0; mid < n; mid++) {
+    for (let from = 0; from < n; from++) {
+      for (let to = 0; to < n; to++) {
+        path[from][to] = Math.min(
+          path[from][to],
+          path[from][mid] + path[mid][to]
+        );
+      }
+    }
+  }
+  let min = Infinity;
+  for (let k = 0; k < n; k++) {
+    min = Math.min(min, path[s - 1][k] + path[k][a - 1] + path[k][b - 1]);
+  }
+  return min;
+}
+
+// 5 광고 삽입
+// 효율성 실패 + 실패
+function solution(play_time, adv_time, logs) {
+  const timeToSec = (time) =>
+    time
+      .split(':')
+      .map((v) => +v)
+      .reduce((acc, cur, idx) => acc + cur * 60 ** (2 - idx), 0);
+  const secToTime = (s) => {
+    let h = Math.floor(s / 3600);
+    s %= 3600;
+    let m = Math.floor(s / 60);
+    s %= 60;
+    const arr = [h, m, s];
+    return arr.map((v) => (v < 10 ? '0' + String(v) : v)).join(':');
+  };
+  play_time = timeToSec(play_time);
+  adv_time = timeToSec(adv_time);
+  const logs_arr = [];
+  logs.forEach((v) => {
+    const start = timeToSec(v.slice(0, 8));
+    const end = timeToSec(v.slice(9));
+    logs_arr.push([start, end]);
+  });
+  const select_arr = [0, play_time - adv_time]
+    .concat(logs_arr)
+    .flat()
+    .sort((a, b) => a - b)
+    .filter((v) => v <= play_time - adv_time);
+  // console.log(play_time, adv_time);
+  // console.log(logs_arr, select_arr);
+  const arr = [];
+  select_arr.forEach((sel_start) => {
+    // console.log(secToTime(sel_start), '갑니다');
+    const sel_end = sel_start + adv_time;
+    let time = 0;
+    logs_arr.forEach(([log_start, log_end]) => {
+      if (sel_start <= log_start && log_end <= sel_end) {
+        // console.log('case1');
+        time += log_end - log_start;
+      } else if (log_start <= sel_start && sel_end <= log_end) {
+        // console.log('case2');
+        time += sel_end - sel_start;
+      } else if (
+        log_start <= sel_start &&
+        sel_start <= log_end &&
+        sel_start <= log_end
+      ) {
+        // console.log('case3');
+        time += log_end - sel_start;
+      } else if (
+        log_start <= sel_end &&
+        sel_end <= log_end &&
+        log_start <= sel_end
+      ) {
+        // console.log('case4');
+        time += sel_end - log_start;
+      }
+      // console.log(
+      //   secToTime(sel_start),
+      //   secToTime(sel_end),
+      //   secToTime(log_start),
+      //   secToTime(log_end),
+      //   secToTime(time)
+      // );
+    });
+    arr.push([secToTime(sel_start), time]);
+  });
+  arr.sort((a, b) => b[1] - a[1]);
+  // console.log(arr);
+  return arr[0][0];
+}
+// 성공
+function solution(play_time, adv_time, logs) {
+  const timeToSecond = (time) => {
+    return time
+      .split(':')
+      .reduce((acc, cur, idx) => acc + cur * 60 ** (2 - idx), 0);
+  };
+  const secondToTime = (s) => {
+    const h = Math.floor(s / 3600);
+    s %= 3600;
+    const m = Math.floor(s / 60);
+    s %= 60;
+    return [h, m, s].map((v) => (v < 10 ? '0' + String(v) : v)).join(':');
+  };
+  play_time = timeToSecond(play_time);
+  adv_time = timeToSecond(adv_time);
+  const logs_start = [],
+    logs_end = [];
+  logs.forEach((v) => {
+    const arr = v.split('-');
+    logs_start.push(timeToSecond(arr[0]));
+    logs_end.push(timeToSecond(arr[1]));
+  });
+  const time = Array(play_time).fill(0);
+  for (let i = 0; i < logs.length; i++) {
+    time[logs_start[i]]++;
+    time[logs_end[i]]--;
+  }
+  for (let i = 1; i < play_time; i++) {
+    time[i] += time[i - 1];
+  }
+  for (let i = 1; i < play_time; i++) {
+    time[i] += time[i - 1];
+  }
+  let max = time[adv_time - 1],
+    start = 0;
+  for (let i = adv_time; i < play_time; i++) {
+    if (time[i] - time[i - adv_time] > max) {
+      max = time[i] - time[i - adv_time];
+      start = i - adv_time + 1;
+    }
+  }
+  return secondToTime(start);
 }

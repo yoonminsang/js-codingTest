@@ -138,6 +138,35 @@ class UndirectedGraph {
     }
     return obj;
   }
+  // floydWarshallAlgorithm() {
+  //   let dist = {};
+  //   for (let i = 0; i < Object.keys(this.edges).length; i++) {
+  //     dist[this.edges[i]] = {};
+  //     // For existing edges assign the dist to be same as weight
+  //     this.edges[this.edges[i]].forEach(
+  //       (e) => (dist[this.edges[i]][e.node] = e.weight)
+  //     );
+  //     this.edges.forEach((n) => {
+  //       // For all other nodes assign it to infinity
+  //       if (dist[this.edges[i]][n] == undefined)
+  //         dist[this.edges[i]][n] = Infinity;
+  //       // For self edge assign dist to be 0
+  //       if (this.edges[i] === n) dist[this.edges[i]][n] = 0;
+  //     });
+  //   }
+  //   this.edges.forEach((i) => {
+  //     this.edges.forEach((j) => {
+  //       this.edges.forEach((k) => {
+  //         // Check if going from i to k then from k to j is better
+  //         // than directly going from i to j. If yes then update
+  //         // i to j value to the new value
+  //         if (dist[i][k] + dist[k][j] < dist[i][j])
+  //           dist[i][j] = dist[i][k] + dist[k][j];
+  //       });
+  //     });
+  //   });
+  //   return dist;
+  // }
 }
 // 지향성 가중치 그래프
 class DirectedGraph {
@@ -270,6 +299,7 @@ undigraph.addEdge(3, 6, 7);
 // undigraph.dfs(1);
 // console.log(undigraph.Dijkstra(1));
 // console.log(undigraph.Prim(1));
+console.log(undigraph.floydWarshallAlgorithm());
 
 class Kruskal {
   // [[0,1,1],[0,2,2]] 형태의 2차원 배열. 중복x (0과 1 연결, 2는 weight)

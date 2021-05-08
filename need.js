@@ -37,3 +37,12 @@ console.log(result);
 var example = [1, 2, 3, 4];
 var result = getCombinations(example, 2);
 console.log(result);
+
+// 2차원 배열 깊은복사
+a = [
+  [1, 0, 0, 3],
+  [2, 0, 0, 0],
+  [0, 0, 0, 2],
+  [3, 0, 1, 0],
+];
+b = Array.from({ length: a.length }, (v, i) => a[i]);
