@@ -46,3 +46,10 @@ a = [
   [3, 0, 1, 0],
 ];
 b = Array.from({ length: a.length }, (v, i) => a[i]);
+
+const a = Array.from({ length: 4 }, () =>
+  Array.from({ length: 4 }, () => false)
+);
+const b = Array(4)
+  .fill()
+  .map(() => Array(4).fill(false));
