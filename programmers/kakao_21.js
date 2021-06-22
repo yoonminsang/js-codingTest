@@ -1,3 +1,5 @@
+// 6 7 미완료
+
 // 1 신규 아이디 추천
 // https://programmers.co.kr/learn/courses/30/lessons/72410
 // 정규식만 안다면 쉬운문제. 모른다면 조금 귀찮은 문제일수도..
@@ -424,3 +426,9 @@ function solution(play_time, adv_time, logs) {
   }
   return secondToTime(start);
 }
+
+// 6 카드짝맞추기
+// https://programmers.co.kr/learn/courses/30/lessons/72415
+
+// 7 매출 하락 최소화
+// https://programmers.co.kr/learn/courses/30/lessons/72416

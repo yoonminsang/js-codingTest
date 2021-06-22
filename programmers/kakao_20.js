@@ -1,3 +1,5 @@
+// 1, 4 미완료
+
 // 1 문자열 압축
 // https://programmers.co.kr/learn/courses/30/lessons/60057
 function solution(s) {
@@ -272,3 +274,6 @@ function solution(n, weak, dist) {
   }
   return -1;
 }
+
+// 7 블록이동하기
+// https://programmers.co.kr/learn/courses/30/lessons/60063
