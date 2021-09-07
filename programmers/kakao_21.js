@@ -16,6 +16,21 @@ function solution(new_id) {
   return new_id;
 }
 
+// repeat 추가
+function solution(new_id) {
+  const id = (
+    new_id
+      .toLowerCase()
+      .replace(/[^a-z0-9-_.]/g, '')
+      .replace(/\.{2,}/g, '.')
+      .replace(/^\./, '')
+      .replace(/\.$/, '') || 'a'
+  )
+    .substring(0, 15)
+    .replace(/\.$/, '');
+  return id.length <= 2 ? id + id[id.length - 1].repeat(3 - id.length) : id;
+}
+
 // 2 메뉴 리뉴얼
 // https://programmers.co.kr/learn/courses/30/lessons/72411
 // combination 함수만드는게 거의 90퍼
@@ -55,6 +70,46 @@ function solution(orders, course) {
         answer.push(arr[i][0]);
       }
     }
+  });
+  answer.sort();
+  return answer;
+}
+
+// 0908 버전
+const getCombinations = (arr, selectNumber) => {
+  if (selectNumber === 1) return arr.map((v) => [v]);
+  const result = [];
+  arr.forEach((fixed, index) => {
+    const rest = arr.slice(index + 1);
+    const combinations = getCombinations(rest, selectNumber - 1);
+    const attached = combinations.map((combination) => [fixed, ...combination]);
+    result.push(...attached);
+  });
+  return result;
+};
+
+function solution(orders, course) {
+  const answer = [];
+  course.forEach((count) => {
+    const orderObj = {};
+    orders.forEach((order) => {
+      order = order.split('').sort();
+      const combinations = getCombinations(order, count);
+      combinations.forEach((combination) => {
+        combination = combination.join('');
+        if (orderObj[combination]) orderObj[combination]++;
+        else orderObj[combination] = 1;
+      });
+    });
+    const orderArr = Object.entries(orderObj);
+    orderArr.sort((a, b) => b[1] - a[1]);
+    const max = orderArr.length && orderArr[0][1];
+    if (max > 1)
+      for (let i = 0; i < orderArr.length; i++) {
+        const [order, count] = orderArr[i];
+        if (max !== count) break;
+        answer.push(order);
+      }
   });
   answer.sort();
   return answer;
