@@ -1,137 +1,51 @@
-// x y a(기둥보) b(삭제설치)
-const GI = 0,
-  BO = 1,
-  DEL = 0,
-  ADD = 1;
+function solution(info, query) {
+  const answer = [];
+  const infoMultiArr = info.map((v) => v.split(' '));
+  const queryMultiArr = query.map((v) => v.replace(/( and )/g, ' ').split(' '));
+  console.log(infoMultiArr);
+  console.log(queryMultiArr);
 
-const isValidateAdd = (x, y, type, n, frame) => {
-  if (y - 1 >= 0) console.log(x, y, frame[y - 1][x].gi);
-  else console.log(x, y);
-  if (type === GI) {
-    if (y === 0) return true; // 바닥위
-    if (x - 1 >= 0 && frame[y][x - 1].bo) return true; // 기둥위
-    if (frame[y][x].bo || (x - 1 >= 0 && frame[y][x - 1].bo)) return true; //보의 한쪽 끝
-  } else {
-    if (
-      (y - 1 >= 0 && frame[y - 1][x].gi) ||
-      (y - 1 >= 0 && x + 1 <= n && frame[y - 1][x + 1])
-    )
-      return true; // 기둥위
-    if (x - 1 >= 0 && frame[y][x - 1].bo && x + 1 <= n && frame[y][x + 1].bo)
-      return true; // 양 옆 보
-  }
-  return false;
-};
-
-const add = (x, y, type, frame) => {
-  if (type === GI) {
-    frame[y][x].gi = true;
-  } else {
-    frame[y][x].bo = true;
-  }
-};
-
-const toggle = (x, y, type, frame) => {
-  if (type === GI) frame[y][x].gi = !frame[y][x].gi;
-  else frame[y][x].bo = !frame[y][x].bo;
-};
-
-const isValidateDel = (x, y, type, n, frame) => {
-  let noEffectGi, noEffectBo;
-  if (type === GI) {
-    const gi = [{ x, y: y + 1 }];
-    const bo = [
-      { x, y: y + 1 },
-      { x: x - 1, y: y + 1 },
-    ];
-    toggle(x, y, type, frame);
-    noEffectGi = gi
-      .filter(({ x, y }) => x >= 0 && y <= n && frame[y][x].gi)
-      .every(({ x, y }) => isValidateAdd(x, y, type, n, frame));
-    noEffectBo = bo
-      .filter(({ x, y }) => x >= 0 && y <= n && frame[y][x].bo)
-      .every(({ x, y }) => isValidateAdd(x, y, type, n, frame));
-  } else {
-    const gi = [
-      { x, y },
-      { x: x + 1, y },
-    ];
-    const bo = [
-      { x: x - 1, y },
-      { x: x + 1, y },
-    ];
-    toggle(x, y, type, frame);
-    noEffectGi = gi
-      .filter(({ x, y }) => x <= n && frame[y][x].gi)
-      .every(({ x, y }) => isValidateAdd(x, y, type, n, frame));
-    noEffectBo = bo
-      .filter(({ x, y }) => x - 1 >= 0 && x + 1 <= n && frame[y][x].bo)
-      .every(({ x, y }) => isValidateAdd(x, y, type, n, frame));
-  }
-  if (noEffectGi || noEffectBo) return;
-  toggle(x, y, type, frame);
-};
-
-const frameToAnswer = (frame) => {
-  const arr = [];
-  frame.forEach((v1, i) =>
-    v1.forEach((v2, j) => {
-      if (v2.gi) arr.push([j, i, 0]);
-      if (v2.bo) arr.push([j, i, 1]);
-    })
-  );
-  arr.sort((a, b) => {
-    if (a[0] === b[0]) {
-      if (a[1] === b[1]) {
-        return a[2] - b[2];
+  for (const queryMultiArrIndex in queryMultiArr) {
+    const queryArr = queryMultiArr[queryMultiArrIndex];
+    let count = 0;
+    outer: for (const infoMultiArrIndex in infoMultiArr) {
+      const infoArr = infoMultiArr[infoMultiArrIndex];
+      console.log('here', infoArr, queryArr);
+      for (const queryIndex in queryArr) {
+        const info = infoArr[queryIndex];
+        const query = queryArr[queryIndex];
+        if (queryIndex == 4) {
+          if (info >= query) {
+            console.log('plus', infoArr, queryArr);
+            count++;
+          }
+        } else {
+          if (query !== '-' && query !== info) continue outer;
+        }
       }
-      return a[1] - b[1];
     }
-    return a[0] - b[0];
-  });
-  return arr;
-};
-
-function solution(n, build_frame) {
-  const frame = Array(n + 1)
-    .fill()
-    .map(() =>
-      Array(n + 1)
-        .fill()
-        .map(() => ({ gi: false, bo: false }))
-    );
-  build_frame.forEach(([x, y, type, action]) => {
-    if (action === ADD) {
-      isValidateAdd(x, y, type, n, frame) && add(x, y, type, frame);
-    } else {
-      isValidateDel(x, y, type, n, frame);
-    }
-  });
-  return frameToAnswer(frame);
+    answer.push(count);
+  }
+  return answer;
 }
 console.log(
-  solution(5, [
-    [1, 0, 0, 1],
-    [1, 1, 1, 1],
-    [2, 1, 0, 1],
-    [2, 2, 1, 1],
-    [5, 0, 0, 1],
-    [5, 1, 0, 1],
-    [4, 2, 1, 1],
-    [3, 2, 1, 1],
-  ])
+  solution(
+    [
+      'java backend junior pizza 150',
+      'python frontend senior chicken 210',
+      'python frontend senior chicken 150',
+      'cpp backend senior pizza 260',
+      'java backend junior chicken 80',
+      'python backend senior chicken 50',
+    ],
+    [
+      'java and backend and junior and pizza 100',
+      'python and frontend and senior and chicken 200',
+      'cpp and - and senior and pizza 250',
+      '- and backend and senior and - 150',
+      '- and - and - and chicken 100',
+      '- and - and - and - 150',
+    ]
+  )
 );
-console.log(
-  solution(5, [
-    [0, 0, 0, 1],
-    [2, 0, 0, 1],
-    [4, 0, 0, 1],
-    [0, 1, 1, 1],
-    [1, 1, 1, 1],
-    [2, 1, 1, 1],
-    [3, 1, 1, 1],
-    [2, 0, 0, 0],
-    [1, 1, 1, 0],
-    [2, 2, 0, 1],
-  ])
-);
+// [1,1,1,1,2,4]

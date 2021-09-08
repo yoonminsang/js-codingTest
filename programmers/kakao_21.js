@@ -279,6 +279,92 @@ console.log(
   )
 );
 
+// 20210908 효율성 실패
+function solution(info, query) {
+  // info : 지원자 정보, query : 요구사항
+  const answer = [];
+  const infoMultiArr = info.map((v) => v.split(' '));
+  const queryMultiArr = query.map((v) => v.replace(/( and )/g, ' ').split(' '));
+  for (const queryMultiArrIdx in queryMultiArr) {
+    let count = 0;
+    const queryArr = queryMultiArr[queryMultiArrIdx];
+    outer: for (const infoMultiArrIdx in infoMultiArr) {
+      const infoArr = infoMultiArr[infoMultiArrIdx];
+      for (let idx in queryArr) {
+        const query = queryArr[idx];
+        const info = infoArr[idx];
+        if (+idx === 4) {
+          if (+info >= +query) count++;
+        } else {
+          if (query !== '-' && query !== info) continue outer;
+        }
+      }
+    }
+    answer.push(count);
+  }
+  return answer;
+}
+
+// 어렵네..
+function solution(info, query) {
+  // info : 지원자 정보, query : 요구사항
+  const answer = [];
+  const languageArr = ['-', 'cpp', 'java', 'python'];
+  const groupArr = ['-', 'backend', 'frontend'];
+  const carrerArr = ['-', 'junior', 'senior'];
+  const foodArr = ['-', 'chicken', 'pizza'];
+  const obj = {};
+  for (const language of languageArr) {
+    for (const group of groupArr) {
+      for (const carrer of carrerArr) {
+        for (const food of foodArr) {
+          const key = `${language} ${group} ${carrer} ${food}`;
+          obj[key] = [];
+        }
+      }
+    }
+  }
+  info.forEach((v) => {
+    const [language, group, carrer, food, score] = v.split(' ');
+    for (let a = 0; a <= 1; a++) {
+      for (let b = 0; b <= 1; b++) {
+        for (let c = 0; c <= 1; c++) {
+          for (let d = 0; d <= 1; d++) {
+            const temp = [];
+            if (a) temp.push(language);
+            else temp.push('-');
+            if (b) temp.push(group);
+            else temp.push('-');
+            if (c) temp.push(carrer);
+            else temp.push('-');
+            if (d) temp.push(food);
+            else temp.push('-');
+            const key = temp.join(' ');
+            obj[key].push(+score);
+          }
+        }
+      }
+    }
+  });
+  for (let i in obj) {
+    obj[i].sort((a, b) => b - a);
+  }
+  query.forEach((v) => {
+    v = v.replace(/( and )/g, ' ').split(' ');
+    const [language, group, carrer, food, score] = v;
+    const key = `${language} ${group} ${carrer} ${food}`;
+    let l = 0,
+      r = obj[key].length - 1;
+    while (l <= r) {
+      let mid = Math.floor((l + r) / 2);
+      if (obj[key][mid] >= score) l = mid + 1;
+      else r = mid - 1;
+    }
+    answer.push(l);
+  });
+  return answer;
+}
+
 // 4 합승 택시 요금
 // 다익스트라 효율성 실패
 class Graph {
