@@ -84,31 +84,167 @@
 //   return permutation(board, [r, c, 0]);
 // }
 
+const result = [];
+
 const getPermutations = (arr, selectNumber) => {
   if (selectNumber === 1) return arr.map((v) => [v]);
   const result = [];
-  console.log(arr);
   arr.forEach((fixed, index) => {
-    const rest = arr.slice(0, index).concat(arr.slice(index + 1));
+    const rest = arr.slice(0, index).concat(index + 1);
     const permutations = getPermutations(rest, selectNumber - 1);
-    const attach = permutations.map((permutation) => [fixed, ...permutation]);
-    result.push(...attach);
+    const attached = permutations.map((permutation) => [fixed, ...permutation]);
+    result.push(...attached);
   });
   return result;
 };
 
+const isMovable = (y, x) => {
+  if (-1 < y && y < 4 && -1 < x && x < 4) return true;
+  else return false;
+};
+
+const ctrlMove = (y, x, dy, dx, board) => {
+  let ny = y,
+    nx = x;
+  while (true) {
+    const nny = ny + dy;
+    const nnx = nx + dx;
+    if (!isMovable(nny, nnx)) return [ny, nx];
+    if (board[nny][nnx]) return [nny, nnx];
+    ny = nny;
+    nx = nnx;
+  }
+};
+
+const bfs = (startY, startX, endY, endX, board) => {
+  if (startY === endY && startX === endX) return [startY, startX, 1];
+  const queue = [];
+  const table = Array(4)
+    .fill()
+    .map(() => Array(4).fill(0));
+  const visit = Array(4)
+    .fill()
+    .map(() => Array(4).fill(false));
+
+  const dx = [-1, 1, 0, 0];
+  const dy = [0, 0, -1, 1];
+
+  queue.push([startY, startX]);
+  visit[startY][startX] = true;
+
+  while (queue.length) {
+    const [y, x] = queue.shift();
+    for (let i = 0; i < 4; i++) {
+      let ny = y + dy[i];
+      let nx = x + dx[i];
+      if (isMovable(ny, nx) && !visit[ny][nx]) {
+        visit[ny][nx] = true;
+        table[ny][nx] = table[y][x] + 1;
+        if (ny === endY && nx === endX) return [ny, nx, table[ny][nx] + 1];
+        queue.push([ny, nx]);
+      }
+
+      [ny, nx] = ctrlMove(y, x, dy[i], dx[i], board);
+      if (!visit[ny][nx]) {
+        visit[ny][nx] = true;
+        table[ny][nx] = table[y][x] + 1;
+
+        if (ny === endY && nx === endX) return [ny, nx, table[ny][nx] + 1];
+
+        queue.push([ny, nx]);
+      }
+    }
+  }
+};
+
+const remove = (card, cardPos, board) => {
+  for (const [y, x] of cardPos.get(card)) {
+    board[y][x] = 0;
+  }
+};
+
+const restore = (card, cardPos, board) => {
+  for (const [y, x] of cardPos.get(card)) {
+    board[y][x] = card;
+  }
+};
+
+const backTracking = (
+  startY,
+  startX,
+  permutationsIdx,
+  permutationIdx,
+  count,
+  board,
+  cardPos,
+  permutation
+) => {
+  if (permutationIdx === cardPos.size) {
+    result.push(count);
+    return;
+  }
+
+  const card = permutation[permutationIdx];
+  const [firstY, firstX] = [cardPos.get(card)[0][0], cardPos.get(card)[0][1]];
+  const [secondY, secondX] = [cardPos.get(card)[1][0], cardPos.get(card)[1][1]];
+
+  let [nextY1, nextX1, jojack1] = bfs(startY, startX, firstY, firstX, board);
+  let [nextY2, nextX2, jojack2] = bfs(nextY1, nextX1, secondY, secondX, board);
+
+  remove(card, cardPos, board);
+  backTracking(
+    nextY2,
+    nextX2,
+    permutationsIdx,
+    permutationIdx + 1,
+    count + jojack1 + jojack2,
+    board,
+    cardPos,
+    permutation
+  );
+  restore(card, cardPos, board);
+
+  [nextY1, nextX1, jojack1] = bfs(startY, startX, secondY, secondX, board);
+  [nextY2, nextX2, jojack2] = bfs(nextY1, nextY2, firstY, firstX, board);
+
+  remove(card, cardPos, board);
+  backTracking(
+    nextY2,
+    nextX2,
+    permutationsIdx,
+    permutationIdx + 1,
+    count + jojack1 + jojack2,
+    board,
+    cardPos,
+    permutation
+  );
+  restore(card, cardPos, board);
+};
+
 function solution(board, r, c) {
-  const set = new Set(board.flat());
-  set.delete(0);
-  const permutationArr = [...set];
-  const permutations = getPermutations(permutationArr, permutationArr.length);
-  // const result=[];
-  // permutations.forEach(permutation=>{
-  //     const copyBoard=board.map(v1=>v1.map(v2=>v2));
-  //     console.log(copyBoard);
-  // })
-  // return Math.max(...result);
+  const copyBoard = board.map((v1) => v1.map((v2) => v2));
+  const cardPos = new Map();
+  for (let i = 0; i < 4; i++) {
+    for (let j = 0; j < 4; j++) {
+      const card = board[i][j];
+      if (card) {
+        if (cardPos.has(card)) {
+          const prev = cardPos.get(card);
+          cardPos.set(card, [...prev, [i, j]]);
+        } else {
+          cardPos.set(card, [[i, j]]);
+        }
+      }
+    }
+  }
+  const permutations = getPermutations([...cardPos.keys()], cardPos.size);
+  permutations.forEach((permutation, idx) => {
+    backTracking(r, c, idx, 0, 0, copyBoard, cardPos, permutation);
+  });
+  console.log(result);
+  return Math.min(...result);
 }
+
 console.log(
   solution(
     [

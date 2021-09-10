@@ -21,7 +21,7 @@ const isMovable = (y, x) => {
 
 // ctrl + 방향키 이동
 // 입력된 방향과 가장 가까이 있는 카드 좌표 반환
-const ctrl_move = (y, x, dy, dx, board) => {
+const ctrlMove = (y, x, dy, dx, board) => {
   // x, y는 현재 카드의 좌표, dx, dy는 이동 방향
   let ny = y,
     nx = x;
@@ -93,9 +93,9 @@ const searchCardBfs = (startY, startX, endY, endX, board) => {
 
       // 위에서는 상하좌우 1칸씩 이동하는 경우를 체크
       // 이번엔 ctrl + 방향키 좌표를 적용
-      [ny, nx] = ctrl_move(y, x, dy[i], dx[i], board);
+      [ny, nx] = ctrlMove(y, x, dy[i], dx[i], board);
 
-      // ctrl_move는 항상 공간 범위를 벗어나지 않으니
+      // ctrlMove는 항상 공간 범위를 벗어나지 않으니
       // 별도로 이동이 가능한지 isMovable로 체크할 필요 없음
       // 나머지 로직은 위와 동일
       if (!visit[ny][nx]) {
@@ -125,7 +125,7 @@ const restore = (card, board, cardPos) => {
 const searchMinBacktrack = (
   startY,
   startX,
-  permutationsIdx,
+
   permutationIdx,
   count,
   board,
@@ -154,7 +154,7 @@ const searchMinBacktrack = (
   searchMinBacktrack(
     ny2,
     nx2,
-    permutationsIdx,
+
     permutationIdx + 1,
     count + res1 + res2,
     board,
@@ -174,7 +174,7 @@ const searchMinBacktrack = (
   searchMinBacktrack(
     ny2,
     nx2,
-    permutationsIdx,
+
     permutationIdx + 1,
     count + res1 + res2,
     board,
@@ -201,11 +201,12 @@ function solution(board, r, c) {
     }
   }
   const permutations = getPermutations([...cardPos.keys()], cardPos.size);
-  permutations.forEach((permutation, idx) => {
-    searchMinBacktrack(r, c, idx, 0, 0, copyBoard, cardPos, permutation);
+  permutations.forEach((permutation) => {
+    searchMinBacktrack(r, c, 0, 0, copyBoard, cardPos, permutation);
   });
   return Math.min(...answer);
 }
+
 console.log(
   solution(
     [
