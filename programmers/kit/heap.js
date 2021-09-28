@@ -21,3 +21,21 @@ function solution(jobs) {
   return Math.floor(arr.reduce((acc, cur) => acc + cur, 0) / arr.length);
 }
 // 내일 큐로 바꾸기 그러면 더 효율적일듯
+
+// https://programmers.co.kr/learn/courses/30/lessons/42628
+function solution(operations) {
+  const arr = [];
+  operations.forEach((operation) => {
+    if (operation === 'D 1') {
+      arr.shift();
+    } else if (operation === 'D -1') {
+      arr.pop();
+    } else {
+      const num = +operation.split(' ')[1];
+      arr.push(num);
+      arr.sort((a, b) => b - a);
+    }
+  });
+  if (arr.length) return [arr[0], arr[arr.length - 1]];
+  return [0, 0];
+}
