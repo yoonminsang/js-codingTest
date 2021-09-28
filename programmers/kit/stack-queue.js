@@ -15,3 +15,19 @@ function solution(progresses, speeds) {
   }
   return answer;
 }
+
+// https://programmers.co.kr/learn/courses/30/lessons/42587
+function solution(priorities, location) {
+  const priorityArr = priorities.map((priority, idx) => [priority, idx]);
+  let count = 0;
+  while (true) {
+    const max = Math.max(...priorityArr.map((v) => v[0]));
+    if (priorityArr[0][0] === max) {
+      count++;
+      if (priorityArr[0][1] === location) return count;
+      priorityArr.shift();
+    } else {
+      priorityArr.push(priorityArr.shift());
+    }
+  }
+}
