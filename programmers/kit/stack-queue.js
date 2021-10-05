@@ -31,3 +31,23 @@ function solution(priorities, location) {
     }
   }
 }
+
+// https://programmers.co.kr/learn/courses/30/lessons/42583
+function solution(bridge_length, weight, truck_weights) {
+  const queue = [[0, 0]]; //무게, 지나는 시간
+  let time = 0;
+  let bridgeWeight = 0;
+  while (queue.length) {
+    if (queue[0][1] === time) {
+      bridgeWeight -= queue.shift()[0];
+    }
+    if (bridgeWeight + truck_weights[0] <= weight) {
+      bridgeWeight += truck_weights[0];
+      queue.push([truck_weights.shift(), time + bridge_length]);
+    } else {
+      if (queue[0]) time = queue[0][1] - 1;
+    }
+    time++;
+  }
+  return time;
+}
