@@ -102,3 +102,18 @@ function solution(people, limit) {
   }
   return count;
 }
+
+// https://programmers.co.kr/learn/courses/30/lessons/42884
+function solution(routes) {
+  routes.sort((a, b) => a[1] - b[1]);
+  console.log(routes);
+  let camera = -30001;
+  let count = 0;
+  for (let route of routes) {
+    if (camera < route[0]) {
+      camera = route[1];
+      count++;
+    }
+  }
+  return count;
+}
