@@ -55,3 +55,15 @@ function solution(numbers) {
   permutations = [...new Set(permutations)];
   return permutations.reduce((acc, cur) => (isPrime(cur) ? acc + 1 : acc), 0);
 }
+
+// https://programmers.co.kr/learn/courses/30/lessons/42842
+function solution(brown, yellow) {
+  const totalCount = brown + yellow;
+  for (let yellowY = 1; yellowY <= yellow; yellowY++) {
+    if (yellow % yellowY !== 0) continue;
+    const yellowX = yellow / yellowY;
+    const x = yellowX + 2;
+    const y = yellowY + 2;
+    if (x * y === totalCount) return [x, y];
+  }
+}
