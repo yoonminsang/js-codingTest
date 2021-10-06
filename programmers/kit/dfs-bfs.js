@@ -57,3 +57,21 @@ function solution(begin, target, words) {
   }
   return 0;
 }
+
+// https://programmers.co.kr/learn/courses/30/lessons/43164
+function solution(tickets) {
+  const answer = [];
+  const dfs = (remainTickets, arr) => {
+    if (remainTickets.length === 0) answer.push(arr);
+    const currentTicket = arr[arr.length - 1];
+    remainTickets.forEach(([from, to], index) => {
+      if (from === currentTicket)
+        dfs(
+          remainTickets.filter((v, i) => i !== index),
+          arr.concat(to)
+        );
+    });
+  };
+  dfs(tickets, ['ICN']);
+  return answer.sort()[0];
+}
