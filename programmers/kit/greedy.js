@@ -83,3 +83,22 @@ function solution(number, k) {
   }
   return stack.join('').slice(0, number.length - k);
 }
+
+// https://programmers.co.kr/learn/courses/30/lessons/42885
+function solution(people, limit) {
+  people.sort((a, b) => a - b);
+  let completeHead = 0;
+  let completeTail = 0;
+  let count = 0;
+  while (completeHead + completeTail < people.length) {
+    if (
+      people[completeHead] + people[people.length - 1 - completeTail] <=
+      limit
+    ) {
+      completeHead++;
+    }
+    completeTail++;
+    count++;
+  }
+  return count;
+}
