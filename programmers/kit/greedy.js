@@ -66,3 +66,20 @@ function solution(name) {
   }
   return count;
 }
+
+// https://programmers.co.kr/learn/courses/30/lessons/42883
+function solution(number, k) {
+  const stack = [];
+  let head = 0;
+  let deleteCount = k;
+  while (head < number.length) {
+    if (deleteCount && stack[stack.length - 1] < number[head]) {
+      stack.pop();
+      deleteCount--;
+    } else {
+      stack.push(number[head]);
+      head++;
+    }
+  }
+  return stack.join('').slice(0, number.length - k);
+}
