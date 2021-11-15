@@ -2,6 +2,8 @@
 // https://tech.kakao.com/2021/01/25/2021-kakao-recruitment-round-1/
 
 // https://programmers.co.kr/learn/courses/30/lessons/72410
+// 1. 신규 아이디 추천
+// 정규식
 function solution(new_id) {
   let replaceId =
     new_id
@@ -18,6 +20,8 @@ function solution(new_id) {
 }
 
 // https://programmers.co.kr/learn/courses/30/lessons/72411
+// 2. 메뉴 리뉴얼
+// 순열 조합, sort
 const getCombinations = (arr, selectNumber) => {
   if (selectNumber === 1) return arr.map((v) => [v]);
   const result = [];
@@ -55,4 +59,75 @@ function solution(orders, course) {
     }
   });
   return answer.sort();
+}
+
+// https://programmers.co.kr/learn/courses/30/lessons/72412
+// 3. 순위 검색
+// 시간 복잡도를 줄이는 방법, 부가적으로 등장하는 이진탐색
+const makeInfoObj = () => {
+  const languageArr = ['cpp', 'java', 'python', '-'];
+  const jobArr = ['backend', 'frontend', '-'];
+  const carrerArr = ['junior', 'senior', '-'];
+  const foodArr = ['chicken', 'pizza', '-'];
+  const infoObj = {};
+  languageArr.forEach((language) => {
+    jobArr.forEach((job) => {
+      carrerArr.forEach((carrer) => {
+        foodArr.forEach((food) => {
+          const key = [language, job, carrer, food].join(' ');
+          infoObj[key] = [];
+        });
+      });
+    });
+  });
+  return infoObj;
+};
+
+const insertInfo = (infoObj, infoArr) => {
+  infoArr.forEach((v) => {
+    const [language, job, carrer, food, score] = v.split(' ');
+    const languageArr = [language, '-'];
+    const jobArr = [job, '-'];
+    const carrerArr = [carrer, '-'];
+    const foodArr = [food, '-'];
+    languageArr.forEach((language) => {
+      jobArr.forEach((job) => {
+        carrerArr.forEach((carrer) => {
+          foodArr.forEach((food) => {
+            const key = [language, job, carrer, food].join(' ');
+            infoObj[key].push(+score);
+          });
+        });
+      });
+    });
+  });
+};
+
+const countValidation = (query, infoObj, countArr) => {
+  const [language, job, carrer, rest] = query.split(' and ');
+  const [food, score] = rest.split(' ');
+  const key = [language, job, carrer, food].join(' ');
+  // console.log(infoObj[key],score);
+  const arr = infoObj[key];
+  let l = 0,
+    r = arr.length - 1;
+  while (l <= r) {
+    const m = Math.floor((l + r) / 2);
+    if (arr[m] >= score) l = m + 1;
+    else r = m - 1;
+  }
+  countArr.push(l);
+};
+
+function solution(info, query) {
+  const answer = [];
+  const infoObj = makeInfoObj();
+  insertInfo(infoObj, info);
+  for (const key in infoObj) {
+    infoObj[key].sort((a, b) => b - a);
+  }
+  query.forEach((v) => {
+    countValidation(v, infoObj, answer);
+  });
+  return answer;
 }
