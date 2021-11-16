@@ -131,3 +131,40 @@ function solution(info, query) {
   });
   return answer;
 }
+
+// 4. 합승택시요금
+// https://programmers.co.kr/learn/courses/30/lessons/72413
+// 다익스트라 응용문제
+function solution(n, s, a, b, fares) {
+  const distance = Array(n)
+    .fill()
+    .map((_, i) =>
+      Array(n)
+        .fill()
+        .map((__, j) => (i === j ? 0 : Infinity))
+    );
+  fares.forEach((fare) => {
+    const [from, to, weight] = fare;
+    distance[from - 1][to - 1] = weight;
+    distance[to - 1][from - 1] = weight;
+  });
+  for (let mid = 0; mid < n; mid++) {
+    for (let from = 0; from < n; from++) {
+      for (let to = 0; to < n; to++) {
+        distance[from][to] = Math.min(
+          distance[from][to],
+          distance[from][mid] + distance[mid][to]
+        );
+      }
+    }
+  }
+  const arr = [];
+  for (let i = 0; i < n; i++) {
+    const distFromS = distance[i][s - 1];
+    const distFromA = distance[i][a - 1];
+    const distFromB = distance[i][b - 1];
+    const sum = distFromS + distFromA + distFromB;
+    arr.push(sum);
+  }
+  return Math.min(...arr);
+}
