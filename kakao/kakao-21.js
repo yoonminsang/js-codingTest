@@ -168,3 +168,50 @@ function solution(n, s, a, b, fares) {
   }
   return Math.min(...arr);
 }
+
+// 5. 광고삽입
+// https://programmers.co.kr/learn/courses/30/lessons/72414
+const timeToSecond = (time) => {
+  const [hour, minute, second] = time.split(':');
+  return hour * 3600 + minute * 60 + second * 1;
+};
+
+const secondToTime = (second) => {
+  const hour = Math.floor(second / 3600);
+  second %= 3600;
+  const minute = Math.floor(second / 60);
+  second %= 60;
+  return [hour, minute, second]
+    .map((v) => (v < 10 ? '0' + String(v) : v))
+    .join(':');
+};
+
+function solution(play_time, adv_time, logs) {
+  const playTimeToSecond = timeToSecond(play_time);
+  const advTimeToSecond = timeToSecond(adv_time);
+  const arr = Array(playTimeToSecond).fill(0);
+  // 시작과 끝점에 +, -
+  logs.forEach((log) => {
+    const [from, to] = log.split('-');
+    arr[timeToSecond(from)]++;
+    arr[timeToSecond(to)]--;
+  });
+  // 각 초에 실행되는 광고 숫자
+  for (let i = 1; i < arr.length; i++) {
+    arr[i] += arr[i - 1];
+  }
+  // 누적된 광고 숫자
+  for (let i = 1; i < arr.length; i++) {
+    arr[i] += arr[i - 1];
+  }
+  let maxSecond = arr[advTimeToSecond];
+  let maxStartSecond = 0;
+  for (let i = 0; i < playTimeToSecond - advTimeToSecond; i++) {
+    const accSecond = arr[i + advTimeToSecond] - arr[i];
+    if (accSecond > maxSecond) {
+      maxSecond = accSecond;
+      maxStartSecond = i + 1;
+    }
+  }
+  return secondToTime(maxStartSecond);
+}
