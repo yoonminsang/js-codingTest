@@ -1,0 +1,449 @@
+// 무지향성 무가중치 그래프
+class Graph1 {
+  constructor() {
+    this.edges = {};
+  }
+  addVertex(vertex) {
+    this.edges[vertex] = [];
+  }
+  addEdge(vertex1, vertex2) {
+    this.edges[vertex1].push(vertex2);
+    this.edges[vertex2].push(vertex1);
+  }
+}
+// 지향성 무가중치 그래프
+class Graph2 {
+  constructor() {
+    this.edges = {};
+  }
+  addVertex(vertex) {
+    this.edges[vertex] = [];
+  }
+  addEdge(vertex1, vertex2) {
+    this.edges[vertex1].push(vertex2);
+  }
+}
+// 무지향성 가중치 그래프
+class UndirectedGraph {
+  constructor() {
+    this.edges = {};
+  }
+  addVertex(vertex) {
+    this.edges[vertex] = {};
+  }
+  addEdge(vertex1, vertex2, weight = 0) {
+    this.edges[vertex1][vertex2] = weight;
+    this.edges[vertex2][vertex1] = weight;
+  }
+  bfs(vertex) {
+    const queue = [vertex];
+    const visited = {};
+    while (queue.length) {
+      const currentNode = queue.shift();
+      if (!visited[currentNode]) {
+        visited[currentNode] = true;
+        console.log(currentNode);
+        for (let adj in this.edges[currentNode]) {
+          queue.push(adj);
+        }
+      }
+    }
+  }
+  dfs(vertex) {
+    const dfsHelper = (vertex, visited) => {
+      visited[vertex] = true;
+      console.log(vertex);
+      for (let adj in this.edges[vertex]) {
+        if (!visited[adj]) dfsHelper(adj, visited);
+      }
+    };
+    dfsHelper(vertex, {});
+  }
+  Dijkstra(start) {
+    const extractMin = (Q, dist) => {
+      let minDistNode = null,
+        minDist = Infinity;
+      for (let node in Q) {
+        if (dist[node] <= minDist) {
+          minDist = dist[node];
+          minDistNode = node;
+        }
+      }
+      return minDistNode;
+    };
+    const Q = { ...this.edges },
+      dist = {};
+    for (let vertex in this.edges) {
+      dist[vertex] = Infinity;
+    }
+    dist[start] = 0;
+    while (Object.keys(Q).length !== 0) {
+      const u = extractMin(Q, dist);
+      delete Q[u];
+      for (let adj in this.edges[u]) {
+        const alt = dist[u] + this.edges[u][adj];
+        if (alt < dist[adj]) dist[adj] = alt;
+      }
+    }
+    return dist;
+  }
+  Prim(vertex) {
+    const copy = JSON.parse(JSON.stringify(this.edges));
+    const obj = Object.keys(this.edges).reduce((acc, cur) => {
+      acc[cur] = {};
+      return acc;
+    }, {});
+    const visited = Object.keys(this.edges).reduce((acc, cur) => {
+      acc[cur] = false;
+      return acc;
+    }, {});
+    let minNodeFrom = vertex,
+      minNodeTo = null,
+      min = Infinity;
+    for (let adj in copy[vertex]) {
+      if (copy[vertex][adj] < min) {
+        minNodeTo = +adj;
+        min = +copy[vertex][adj];
+      }
+    }
+    visited[minNodeFrom] = true;
+    visited[minNodeTo] = true;
+    obj[minNodeFrom][minNodeTo] = min;
+    obj[minNodeTo][minNodeFrom] = min;
+    delete copy[minNodeFrom][minNodeTo];
+    delete copy[minNodeTo][minNodeFrom];
+    for (let i = 1; i < Object.keys(this.edges).length - 1; i++) {
+      let minNodeFrom = null,
+        minNodeTo = null,
+        min = Infinity;
+      const arr = [];
+      Object.keys(obj).forEach((v) => {
+        if (Object.keys(obj[v]).length !== 0) arr.push(v);
+      });
+      arr.forEach((v) => {
+        for (let adj in copy[v]) {
+          if (!visited[adj] && copy[v][adj] < min) {
+            minNodeFrom = +v;
+            minNodeTo = +adj;
+            min = +copy[v][adj];
+          }
+        }
+      });
+      visited[minNodeFrom] = true;
+      visited[minNodeTo] = true;
+      obj[minNodeFrom][minNodeTo] = min;
+      obj[minNodeTo][minNodeFrom] = min;
+      delete copy[minNodeFrom][minNodeTo];
+      delete copy[minNodeTo][minNodeFrom];
+    }
+    return obj;
+  }
+}
+// 지향성 가중치 그래프
+class DirectedGraph {
+  constructor() {
+    this.edges = {};
+  }
+  addVertex(vertex) {
+    this.edges[vertex] = {};
+  }
+  addEdge(vertex1, vertex2, weight = 0) {
+    this.edges[vertex1][vertex2] = weight;
+  }
+  bfs(vertex) {
+    const queue = [vertex];
+    const visited = {};
+    while (queue.length) {
+      const currentNode = queue.shift();
+      if (!visited[currentNode]) {
+        visited[currentNode] = true;
+        console.log(currentNode);
+        for (let adj in this.edges[currentNode]) {
+          queue.push(adj);
+        }
+      }
+    }
+  }
+  dfs(vertex) {
+    const dfsHelper = (vertex, visited) => {
+      visited[vertex] = true;
+      console.log(vertex);
+      for (let adj in this.edges[vertex]) {
+        if (!visited[adj]) dfsHelper(adj, visited);
+      }
+    };
+    dfsHelper(vertex, {});
+  }
+  Dijkstra(start) {
+    const extractMin = (Q, dist) => {
+      let minDistNode = null,
+        minDist = Infinity;
+      for (let node in Q) {
+        if (dist[node] <= minDist) {
+          minDist = dist[node];
+          minDistNode = node;
+        }
+      }
+      return minDistNode;
+    };
+    const Q = { ...this.edges },
+      dist = {};
+    for (let vertex in this.edges) {
+      dist[vertex] = Infinity;
+    }
+    dist[start] = 0;
+    while (Object.keys(Q).length !== 0) {
+      const u = extractMin(Q, dist);
+      delete Q[u];
+      for (let adj in this.edges[u]) {
+        const alt = dist[u] + this.edges[u][adj];
+        if (alt < dist[adj]) dist[adj] = alt;
+      }
+    }
+    return dist;
+  }
+  Prim(vertex) {
+    const copy = JSON.parse(JSON.stringify(this.edges));
+    const obj = Object.keys(this.edges).reduce((acc, cur) => {
+      acc[cur] = {};
+      return acc;
+    }, {});
+    const visited = Object.keys(this.edges).reduce((acc, cur) => {
+      acc[cur] = false;
+      return acc;
+    }, {});
+    let minNodeFrom = vertex,
+      minNodeTo = null,
+      min = Infinity;
+    for (let adj in copy[vertex]) {
+      if (copy[vertex][adj] < min) {
+        minNodeTo = +adj;
+        min = +copy[vertex][adj];
+      }
+    }
+    visited[minNodeFrom] = true;
+    visited[minNodeTo] = true;
+    obj[minNodeFrom][minNodeTo] = min;
+    delete copy[minNodeFrom][minNodeTo];
+    for (let i = 1; i < Object.keys(this.edges).length - 1; i++) {
+      let minNodeFrom = null,
+        minNodeTo = null,
+        min = Infinity;
+      const arr = [];
+      Object.keys(obj).forEach((v) => {
+        if (Object.keys(obj[v]).length !== 0) arr.push(v);
+      });
+      arr.forEach((v) => {
+        for (let adj in copy[v]) {
+          if (!visited[adj] && copy[v][adj] < min) {
+            minNodeFrom = +v;
+            minNodeTo = +adj;
+            min = +copy[v][adj];
+          }
+        }
+      });
+      visited[minNodeFrom] = true;
+      visited[minNodeTo] = true;
+      obj[minNodeFrom][minNodeTo] = min;
+      delete copy[minNodeFrom][minNodeTo];
+    }
+    return obj;
+  }
+}
+
+const undigraph = new UndirectedGraph();
+undigraph.addVertex(1);
+undigraph.addVertex(2);
+undigraph.addVertex(3);
+undigraph.addVertex(4);
+undigraph.addVertex(5);
+undigraph.addVertex(6);
+undigraph.addEdge(1, 2, 1);
+undigraph.addEdge(2, 5, 2);
+undigraph.addEdge(1, 3, 3);
+undigraph.addEdge(2, 3, 4);
+undigraph.addEdge(2, 4, 5);
+undigraph.addEdge(3, 4, 6);
+undigraph.addEdge(3, 6, 7);
+// console.log(undigraph);
+// undigraph.bfs(1);
+// undigraph.dfs(1);
+// console.log(undigraph.Dijkstra(1));
+// console.log(undigraph.Prim(1));
+
+class Kruskal {
+  // [[0,1,1],[0,2,2]] 형태의 2차원 배열. 중복x (0과 1 연결, 2는 weight)
+  // 크루스칼은 우선순위큐를 이용하지 않으면 위의 그래프 즉 객체안에 객체가 있는 형태에서 구현하기 어렵다.
+  // 아래와 같은 형태로 변환 후 이용하자.
+  // const arr=[]
+  // for(let i in a){
+  //     for(let j in a[i]){
+  //         arr.push([i,j,a[i][j]])
+  //     }
+  // }
+  constructor(n, graph) {
+    this.n = n;
+    this.graph = graph.sort((a, b) => a - b);
+  }
+  findMST() {
+    const getParent = (parent, v) => {
+      if (parent[v] === v) return v;
+      return getParent(parent, parent[v]);
+    };
+    const unionParent = (parent, a, b) => {
+      a = getParent(parent, a);
+      b = getParent(parent, b);
+      a < b ? (parent[b] = a) : (parent[a] = b);
+    };
+    const findParent = (parent, a, b) => {
+      return getParent(parent, a) === getParent(parent, b);
+    };
+    const arr = [];
+    const parent = [...new Set(this.graph.map((v) => [v[0], v[1]]).flat())];
+    let i = 0;
+    while (arr.length !== this.n - 1) {
+      if (!findParent(parent, this.graph[i][0], this.graph[i][1])) {
+        unionParent(parent, this.graph[i][0], this.graph[i][1]);
+        arr.push(this.graph[i]);
+      }
+      i++;
+    }
+    return arr;
+  }
+}
+const kruskal = new Kruskal(4, [
+  [0, 1, 1],
+  [0, 2, 2],
+  [1, 2, 5],
+  [1, 3, 1],
+  [2, 3, 8],
+]);
+// console.log(kruskal.findMST());
+
+// ex1
+// 2차원 배열 => 무지향성 무가중치 그래프
+(function () {
+  const edge = [
+    [3, 6],
+    [4, 3],
+    [3, 2],
+    [1, 3],
+    [1, 2],
+    [2, 4],
+    [5, 2],
+  ];
+  // edgd의 vertex가 1,2,3,4처럼 나올때 복잡도 줄여서 만드는 법
+  const graph = Array(6)
+    .fill()
+    .reduce((acc, cur, idx) => {
+      acc[idx + 1] = [];
+      return acc;
+    }, {});
+  edge.forEach(([from, to]) => {
+    graph[from].push(to);
+    graph[to].push(from);
+  });
+  console.log(graph);
+
+  // edge의 vertex가 임의로 나오는 경우.
+  const graph2 = edge.reduce((acc, [from, to]) => {
+    acc[from] = (acc[from] || []).concat(to);
+    acc[to] = (acc[to] || []).concat(from);
+    return acc;
+  }, {});
+  console.log(graph2);
+});
+// ();
+
+///////////////////////////////////////////////21 11 17 그래프
+class Graph {
+  constructor() {
+    this.edges = {};
+  }
+
+  addVertex(vertex) {
+    this.edges[vertex] = {};
+  }
+
+  addEdge(from, to, weight = 0) {
+    this.edges[from][to] = weight;
+    this.edges[to][from] = weight;
+  }
+
+  dfs(vertex) {
+    const dfsHelper = (vertex, visited) => {
+      console.log('dfs vertex', vertex);
+      visited[vertex] = true;
+      for (const adjVertex in this.edges[vertex]) {
+        if (!visited[adjVertex]) {
+          dfsHelper(adjVertex, visited);
+        }
+      }
+    };
+    dfsHelper(vertex, {});
+  }
+
+  bfs(vertex) {
+    const queue = [vertex];
+    const visited = {};
+    while (queue.length) {
+      const currentNode = queue.shift();
+      if (!visited[currentNode]) {
+        console.log('bfs vertex', currentNode);
+        visited[currentNode] = true;
+        for (let adjVertex in this.edges[currentNode]) {
+          queue.push(adjVertex);
+        }
+      }
+    }
+  }
+
+  dijkstra(start) {
+    const extractMinVertex = (queue, dist) => {
+      let minDistVertex = null,
+        minDist = Infinity;
+      for (let vertex in queue) {
+        const distToVertex = dist[vertex];
+        if (distToVertex < minDist) {
+          minDist = distToVertex;
+          minDistVertex = vertex;
+        }
+        queue[vertex][dist];
+      }
+      return minDistVertex;
+    };
+    const queue = { ...this.edges },
+      dist = {};
+    for (const vertex in this.edges) {
+      dist[vertex] = Infinity;
+    }
+    dist[start] = 0;
+    while (Object.keys(queue).length) {
+      const min = extractMinVertex(queue, dist);
+      delete queue[min];
+      for (let adjVertex in this.edges[min]) {
+        const alt = dist[min] + this.edges[min][adjVertex];
+        if (alt < dist[adjVertex]) dist[adjVertex] = alt;
+      }
+    }
+    return dist;
+  }
+}
+
+const graph = new Graph();
+graph.addVertex(1);
+graph.addVertex(2);
+graph.addVertex(3);
+graph.addVertex(4);
+graph.addVertex(5);
+graph.addVertex(6);
+graph.addEdge(1, 2, 1);
+graph.addEdge(2, 5, 2);
+graph.addEdge(1, 3, 3);
+graph.addEdge(2, 3, 4);
+graph.addEdge(2, 4, 5);
+graph.addEdge(3, 4, 6);
+graph.addEdge(3, 6, 7);
+// graph.bfs(1);
+// graph.dfs(1);
+console.log(graph.dijkstra(1));

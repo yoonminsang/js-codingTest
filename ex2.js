@@ -1,53 +1,81 @@
-function solution(n, k, cmd) {
-  const existArr = Array(n).fill('O');
-  const prevObj = {};
-  const nextObj = {};
-  const removeArr = [];
-  let cursor = k;
-  for (let i = 0; i < n; i++) {
-    if (i !== 0) prevObj[i] = i - 1;
-    if (i !== n - 1) nextObj[i] = i + 1;
+const getFactorial = (n) => {
+  let answer = 1;
+  for (let i = n; i > 0; i--) {
+    answer *= i;
   }
-  cmd.forEach((v) => {
-    const [action, number] = v.split(' ');
-    switch (action) {
-      case 'U':
-        for (let i = 0; i < number; i++) {
-          cursor = prevObj[cursor];
-        }
-        break;
-      case 'D':
-        for (let i = 0; i < number; i++) {
-          cursor = nextObj[cursor];
-        }
-        break;
-      case 'C':
-        removeArr.push(cursor);
-        const prev = prevObj[cursor];
-        const next = nextObj[cursor];
-        if (prev === null) {
-          prevObj[next] = null;
-        } else if (next === null) {
-          nextObj[prev] = null;
-        } else {
-          nextObj[prev] = next;
-          prevObj[next] = prev;
-        }
-        existArr[cursor] = 'X';
-        if (next) cursor = next;
-        else cursor = prev;
-        break;
-      case 'Z':
-        const pop = removeArr.pop();
-        const prev2 = prevObj[pop];
-        const next2 = nextObj[pop];
-        if (prev2 !== null) nextObj[prev2] = pop;
-        if (next2 !== null) prevObj[next2] = pop;
-        existArr[pop] = 'O';
-        break;
+  return answer;
+  // if (n == 0) return 1;
+  // return n * getFactorial(n - 1);
+};
+
+function solution(n, k) {
+  const isValidate = (arr, column) => {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === column) return false;
     }
-  });
-  return existArr.join('');
+    return true;
+  };
+
+  const dfs = (arr, n, k) => {
+    if (arr.length === k) {
+      count++;
+      return;
+    }
+    for (let column = 0; column < n; column++) {
+      if (isValidate(arr, column)) dfs(arr.concat(column), n, k);
+    }
+  };
+  let count = 0;
+  for (let i = 0; i < n; i++) {
+    dfs([i], n, k, 0);
+  }
+  const combination = getFactorial(n) / (getFactorial(k) * getFactorial(n - k));
+  return (count * combination) % 10007;
 }
 
-console.log(solution(4, 1, ['C', 'C', 'U 1']));
+const getCombinations = (arr, selectNumber) => {
+  if (selectNumber === 1) return arr.map((i) => [i]);
+  const result = [];
+  arr.forEach((fixed, index) => {
+    const rest = arr.slice(index + 1);
+    const combinations = getCombinations(rest, selectNumber - 1);
+    const attached = combinations.map((combination) => [fixed, ...combination]);
+    result.push(...attached);
+  });
+  return result;
+};
+
+function solution(n, k) {
+  const isValidate = (arr, column) => {
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] === column) return false;
+    }
+    return true;
+  };
+
+  const dfs = (arr, n, k, combination) => {
+    if (arr.length === k) {
+      console.log(arr);
+      answer++;
+    }
+    combination.forEach((value) => {
+      if (isValidate(arr, value)) dfs(arr.concat(value), n, k, combination);
+    });
+    // for(let column=0;column<n;column++){
+    //     if(isValidate(arr,column)) dfs(arr.concat(column),n,k);
+    // }
+  };
+  let answer = 0;
+  const nToArray = Array(n)
+    .fill()
+    .map((_, index) => index);
+  const combinations = getCombinations(nToArray, k);
+  combinations.forEach((combination) => {
+    combination.forEach((value) => {
+      dfs([value], n, k, combination);
+    });
+  });
+  // dfs([i],n,k,0);
+  return answer;
+}
+console.log(solution(2, 2));
