@@ -1,8 +1,6 @@
 // https://programmers.co.kr/learn/courses/30/lessons/42586
 function solution(progresses, speeds) {
-  const days = progresses.map((progress, idx) =>
-    Math.ceil((100 - progress) / speeds[idx])
-  );
+  const days = progresses.map((progress, idx) => Math.ceil((100 - progress) / speeds[idx]));
   const answer = [];
   while (days.length) {
     const standard = days.shift();
@@ -11,6 +9,26 @@ function solution(progresses, speeds) {
       days.shift();
       count++;
     }
+    answer.push(count);
+  }
+  return answer;
+}
+
+// 다른풀이
+function solution(progresses, speeds) {
+  const completeDays = progresses.map((progress, index) => Math.ceil((100 - progress) / speeds[index]));
+  const answer = [];
+  let [prev, count] = [completeDays[0], 1];
+  for (let i = 1; i < completeDays.length; i++) {
+    const next = completeDays[i];
+    if (prev < completeDays[i]) {
+      answer.push(count);
+      [prev, count] = [next, 1];
+    } else {
+      count++;
+    }
+  }
+  if (count) {
     answer.push(count);
   }
   return answer;
