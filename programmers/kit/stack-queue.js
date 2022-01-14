@@ -21,16 +21,14 @@ function solution(progresses, speeds) {
   let [prev, count] = [completeDays[0], 1];
   for (let i = 1; i < completeDays.length; i++) {
     const next = completeDays[i];
-    if (prev < completeDays[i]) {
+    if (prev < next) {
       answer.push(count);
       [prev, count] = [next, 1];
     } else {
       count++;
     }
   }
-  if (count) {
-    answer.push(count);
-  }
+  answer.push(count);
   return answer;
 }
 
