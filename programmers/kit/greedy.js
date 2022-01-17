@@ -91,10 +91,7 @@ function solution(people, limit) {
   let completeTail = 0;
   let count = 0;
   while (completeHead + completeTail < people.length) {
-    if (
-      people[completeHead] + people[people.length - 1 - completeTail] <=
-      limit
-    ) {
+    if (people[completeHead] + people[people.length - 1 - completeTail] <= limit) {
       completeHead++;
     }
     completeTail++;
@@ -106,14 +103,13 @@ function solution(people, limit) {
 // https://programmers.co.kr/learn/courses/30/lessons/42884
 function solution(routes) {
   routes.sort((a, b) => a[1] - b[1]);
-  console.log(routes);
   let camera = -30001;
   let count = 0;
-  for (let route of routes) {
-    if (camera < route[0]) {
-      camera = route[1];
+  routes.forEach(([from, to]) => {
+    if (camera < from) {
+      camera = to;
       count++;
     }
-  }
+  });
   return count;
 }
