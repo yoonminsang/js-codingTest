@@ -337,7 +337,6 @@ const searchMinBackTracking = ({ startY, startX, permutationIndex, count, board,
   searchMinBackTracking({
     startY: nextY2,
     startX: nextX2,
-
     permutationIndex: permutationIndex + 1,
     count: count + count1 + count2,
     board,
