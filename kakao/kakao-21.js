@@ -14,8 +14,7 @@ function solution(new_id) {
       .replace(/\.$/, '')
       .slice(0, 15)
       .replace(/\.$/, '') || 'a';
-  if (replaceId.length <= 2)
-    replaceId += replaceId[replaceId.length - 1].repeat(3 - replaceId.length);
+  if (replaceId.length <= 2) replaceId += replaceId[replaceId.length - 1].repeat(3 - replaceId.length);
   return replaceId;
 }
 
@@ -141,7 +140,7 @@ function solution(n, s, a, b, fares) {
     .map((_, i) =>
       Array(n)
         .fill()
-        .map((__, j) => (i === j ? 0 : Infinity))
+        .map((__, j) => (i === j ? 0 : Infinity)),
     );
   fares.forEach((fare) => {
     const [from, to, weight] = fare;
@@ -151,10 +150,7 @@ function solution(n, s, a, b, fares) {
   for (let mid = 0; mid < n; mid++) {
     for (let from = 0; from < n; from++) {
       for (let to = 0; to < n; to++) {
-        distance[from][to] = Math.min(
-          distance[from][to],
-          distance[from][mid] + distance[mid][to]
-        );
+        distance[from][to] = Math.min(distance[from][to], distance[from][mid] + distance[mid][to]);
       }
     }
   }
@@ -181,9 +177,7 @@ const secondToTime = (second) => {
   second %= 3600;
   const minute = Math.floor(second / 60);
   second %= 60;
-  return [hour, minute, second]
-    .map((v) => (v < 10 ? '0' + String(v) : v))
-    .join(':');
+  return [hour, minute, second].map((v) => (v < 10 ? '0' + String(v) : v)).join(':');
 };
 
 function solution(play_time, adv_time, logs) {
@@ -214,4 +208,160 @@ function solution(play_time, adv_time, logs) {
     }
   }
   return secondToTime(maxStartSecond);
+}
+
+// 6. 카드 짝 맞추기
+// https://programmers.co.kr/learn/courses/30/lessons/72415
+
+const answer = [];
+
+const getPermutations = (arr, selectNumber) => {
+  if (selectNumber === 1) return arr.map((v) => [v]);
+  const result = [];
+  arr.forEach((fixed, index) => {
+    const rest = [...arr.slice(0, index), ...arr.slice(index + 1)];
+    const permutations = getPermutations(rest, selectNumber - 1);
+    result.push(...permutations.map((permutation) => [fixed, ...permutation]));
+  });
+  return result;
+};
+
+const makeCardObj = (board) => {
+  const cards = [...new Set(board.flat())];
+  const cardObj = cards.reduce((acc, cur) => {
+    if (cur > 0) acc[cur] = [];
+    return acc;
+  }, {});
+  board.forEach((boardRow, row) => {
+    boardRow.forEach((card, column) => {
+      if (card > 0) cardObj[card].push([row, column]);
+    });
+  });
+  return cardObj;
+};
+
+const isMovable = (y, x) => {
+  if (y < 0 || y >= 4 || x < 0 || x >= 4) return false;
+  return true;
+};
+
+const ctrlMove = (y, x, dy, dx, board) => {
+  let [nextY, nextX] = [y, x];
+  while (true) {
+    const [moveY, moveX] = [nextY + dy, nextX + dx];
+    if (!isMovable(moveY, moveX)) return [nextY, nextX];
+    if (board[moveY][moveX] > 0) return [moveY, moveX];
+    [nextY, nextX] = [moveY, moveX];
+  }
+};
+
+const searchCardBfs = (startY, startX, endY, endX, board) => {
+  if (startY === endY && startX === endX) return [startY, startX, 1];
+  const clickArr = Array(4)
+    .fill()
+    .map(() => Array(4).fill(0));
+  const visitArr = Array(4)
+    .fill()
+    .map(() => Array(4).fill(false));
+  const dy = [1, -1, 0, 0];
+  const dx = [0, 0, -1, 1];
+  const queue = [[startY, startX]];
+  visitArr[startY][startX] = true;
+  while (queue.length) {
+    const [y, x] = queue.shift();
+    for (let i = 0; i < 4; i++) {
+      // 1칸
+      let [nextY, nextX] = [y + dy[i], x + dx[i]];
+      if (isMovable(nextY, nextX)) {
+        if (!visitArr[nextY][nextX]) {
+          visitArr[nextY][nextX] = true;
+          clickArr[nextY][nextX] = clickArr[y][x] + 1;
+          if (nextY === endY && nextX === endX) return [nextY, nextX, clickArr[nextY][nextX] + 1];
+          queue.push([nextY, nextX]);
+        }
+      }
+      // ctrl
+      [nextY, nextX] = ctrlMove(y, x, dy[i], dx[i], board);
+      if (!visitArr[nextY][nextX]) {
+        visitArr[nextY][nextX] = true;
+        clickArr[nextY][nextX] = clickArr[y][x] + 1;
+        if (nextY === endY && nextX === endX) return [nextY, nextX, clickArr[nextY][nextX] + 1];
+        queue.push([nextY, nextX]);
+      }
+    }
+  }
+  return [startY, startX, Infinity];
+};
+
+const remove = (card, board, cardObj) => {
+  for (const [y, x] of cardObj[card]) {
+    board[y][x] = 0;
+  }
+};
+
+const restore = (card, board, cardObj) => {
+  for (const [y, x] of cardObj[card]) {
+    board[y][x] = card;
+  }
+};
+
+const searchMinBackTracking = ({ startY, startX, permutationIndex, count, board, cardObj, permutation }) => {
+  if (permutationIndex === Object.keys(cardObj).length) {
+    answer.push(count);
+    return;
+  }
+
+  const card = permutation[permutationIndex]; // 현재 선택한 카드
+  const [y1, x1] = [cardObj[card][0][0], cardObj[card][0][1]]; // 현재 선택한 카드의 1번 좌표
+  const [y2, x2] = [cardObj[card][1][0], cardObj[card][1][1]]; // 현재 선택한 카드의 2번 좌표
+
+  let [nextY1, nextX1, count1] = searchCardBfs(startY, startX, y1, x1, board);
+  let [nextY2, nextX2, count2] = searchCardBfs(nextY1, nextX1, y2, x2, board);
+
+  remove(card, board, cardObj);
+  searchMinBackTracking({
+    startY: nextY2,
+    startX: nextX2,
+    permutationIndex: permutationIndex + 1,
+    count: count + count1 + count2,
+    board,
+    cardObj,
+    permutation,
+  });
+  restore(card, board, cardObj);
+
+  [nextY1, nextX1, count1] = searchCardBfs(startY, startX, y2, x2, board);
+  [nextY2, nextX2, count2] = searchCardBfs(nextY1, nextX1, y1, x1, board);
+
+  remove(card, board, cardObj);
+  searchMinBackTracking({
+    startY: nextY2,
+    startX: nextX2,
+
+    permutationIndex: permutationIndex + 1,
+    count: count + count1 + count2,
+    board,
+    cardObj,
+    permutation,
+  });
+  restore(card, board, cardObj);
+};
+
+function solution(board, y, x) {
+  const cardObj = makeCardObj(board);
+  const cards = Object.keys(cardObj).map((v) => +v);
+  const permutations = getPermutations(cards, cards.length);
+  const copyBoard = board.map((boardRow) => boardRow.slice());
+  permutations.forEach((permutation) => {
+    searchMinBackTracking({
+      startY: y,
+      startX: x,
+      permutationIndex: 0,
+      count: 0,
+      board: copyBoard,
+      cardObj,
+      permutation,
+    });
+  });
+  return Math.min(...answer);
 }
