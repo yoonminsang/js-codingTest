@@ -28,3 +28,19 @@ function solution(id_list, report, k) {
     }, 0);
   });
 }
+
+// 2. k진수에서 소수 개수 구하기
+// https://programmers.co.kr/learn/courses/30/lessons/92335
+
+const isInteger = (n) => {
+  if (n < 2) return false;
+  for (let i = 2; i <= Math.sqrt(n); i++) {
+    if (n % i === 0) return false;
+  }
+  return true;
+};
+
+function solution(n, k) {
+  const numberArr = n.toString(k).split('0');
+  return numberArr.filter((number) => isInteger(number)).length;
+}
