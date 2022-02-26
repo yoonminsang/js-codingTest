@@ -44,3 +44,33 @@ function solution(n, k) {
   const numberArr = n.toString(k).split('0');
   return numberArr.filter((number) => isInteger(number)).length;
 }
+
+// 3. 주차 요금 계산
+// https://programmers.co.kr/learn/courses/30/lessons/92341
+
+const timeToMinute = (time) => {
+  const [hour, minute] = time.split(':');
+  return hour * 60 + minute * 1;
+};
+
+const lastTime = timeToMinute('23:59');
+
+const calculateFare = (fees, diffTime) => {
+  const [basicTime, basicFare, unitTime, unitFare] = fees;
+  if (diffTime <= basicTime) return basicFare;
+  return basicFare + unitFare * Math.ceil((diffTime - basicTime) / unitTime);
+};
+
+function solution(fees, records) {
+  const obj = {};
+  records.forEach((record) => {
+    const [time, carNumber, type] = record.split(' ');
+    if (!obj[carNumber]) obj[carNumber] = 0;
+    if (type === 'IN') obj[carNumber] += lastTime - timeToMinute(time);
+    else obj[carNumber] -= lastTime - timeToMinute(time);
+  });
+  return Object.entries(obj)
+    .map(([carNumber, diffTime]) => [carNumber, calculateFare(fees, diffTime)])
+    .sort((a, b) => a[0] - b[0])
+    .map(([carNumber, diffTime]) => diffTime);
+}
