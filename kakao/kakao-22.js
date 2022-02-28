@@ -74,3 +74,47 @@ function solution(fees, records) {
     .sort((a, b) => a[0] - b[0])
     .map(([carNumber, diffTime]) => diffTime);
 }
+
+// 4. 양궁대회
+// https://programmers.co.kr/learn/courses/30/lessons/92342
+
+function solution(n, info) {
+  let answer = Array(11).fill(0);
+  let max = 0;
+  const dfs = (apeachScore, lionScore, shotCount, index, lionInfo) => {
+    const reverseIndex = 10 - index;
+    // 화살을 n보다 많이쏜 경우 return;
+    if (n < shotCount) return;
+
+    // 마지막 index인 경우
+    if (index > 10) {
+      let diffrentScore = lionScore - apeachScore;
+      if (max < diffrentScore) {
+        lionInfo[10] = n - shotCount;
+        max = diffrentScore;
+        answer = lionInfo;
+      }
+      return;
+    }
+
+    // 라이언이 이기는 경우
+    if (n >= shotCount) {
+      const nextLionInfo = lionInfo.slice();
+      const apeachShotCount = info[reverseIndex];
+      nextLionInfo[reverseIndex] = apeachShotCount + 1;
+      dfs(apeachScore, lionScore + index, shotCount + apeachShotCount + 1, index + 1, nextLionInfo);
+    }
+
+    // 어파치가 이기는 경우
+    if (info[reverseIndex] > 0) {
+      dfs(apeachScore + index, lionScore, shotCount, index + 1, lionInfo);
+    }
+    // 둘다 점수를 못 얻는 경우
+    else {
+      dfs(apeachScore, lionScore, shotCount, index + 1, lionInfo);
+    }
+  };
+  dfs(0, 0, 0, 0, answer);
+  if (max > 0) return answer;
+  return [-1];
+}
