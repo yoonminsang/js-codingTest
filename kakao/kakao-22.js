@@ -118,3 +118,39 @@ function solution(n, info) {
   if (max > 0) return answer;
   return [-1];
 }
+
+// 4. 양과 늑대
+// https://programmers.co.kr/learn/courses/30/lessons/92343
+// 참고해서 품. 나는 바보
+
+const makeTree = (info, edges) => {
+  const tree = Array(info.length)
+    .fill(null)
+    .map(() => []);
+  edges.forEach(([parent, child]) => {
+    tree[parent].push(child);
+  });
+  return tree;
+};
+
+function solution(info, edges) {
+  const tree = makeTree(info, edges);
+  let max = 1;
+  const dfs = (sheepCount, wolfCount, currentNode, nextNodes) => {
+    info[currentNode] === 1 ? wolfCount++ : sheepCount++;
+
+    if (sheepCount <= wolfCount) return;
+
+    max = Math.max(max, sheepCount);
+
+    const newNextNodes = [...nextNodes];
+    const index = newNextNodes.indexOf(currentNode);
+    newNextNodes.splice(index, 1);
+    newNextNodes.push(...tree[currentNode]);
+    for (const nextNode of newNextNodes) {
+      dfs(sheepCount, wolfCount, nextNode, newNextNodes);
+    }
+  };
+  dfs(0, 0, 0, [0]);
+  return max;
+}
