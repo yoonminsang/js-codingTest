@@ -211,7 +211,7 @@ const getPartialSumArr = (board, skill) => {
 };
 
 const getAnswer = (board) => {
-  return board.reduce((acc, curRow) => acc + curRow.filter((v) => v > 0).length, 0);
+  return board.flat().filter((v) => v > 0).length;
 };
 
 function solution(board, skill) {
