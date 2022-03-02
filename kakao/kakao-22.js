@@ -154,3 +154,72 @@ function solution(info, edges) {
   dfs(0, 0, 0, [0]);
   return max;
 }
+
+// 5. 파괴되지 않은 건물
+// https://programmers.co.kr/learn/courses/30/lessons/92344
+
+// 효율성 실패
+function solution(board, skill) {
+  skill.forEach(([type, r1, c1, r2, c2, degree]) => {
+    const n = type === 1 ? -degree : +degree;
+    for (let r = r1; r <= r2; r++) {
+      for (let c = c1; c <= c2; c++) {
+        board[r][c] += n;
+      }
+    }
+  });
+  const answer = board.reduce(
+    (acc, curRow) =>
+      acc +
+      curRow.reduce((acc, cur) => {
+        if (cur > 0) return acc + 1;
+        return acc;
+      }, 0),
+    0,
+  );
+  return answer;
+}
+
+// 효율성 성공
+// 부분합 사용(작년 시간 문제와 유사)
+// 작년보다 조금 더 생각할 점은 2차원 배열이라는 점
+
+const getPartialSumArr = (board, skill) => {
+  const arr = Array(board.length + 1)
+    .fill(null)
+    .map(() => Array(board[0].length + 1).fill(0));
+  skill.forEach(([type, r1, c1, r2, c2, degree]) => {
+    const n = type === 1 ? -degree : +degree;
+    arr[r1][c1] += n;
+    arr[r1][c2 + 1] -= n;
+    arr[r2 + 1][c1] -= n;
+    arr[r2 + 1][c2 + 1] += n;
+  });
+  // 행 부분합
+  for (let c = 0; c < arr[0].length; c++) {
+    for (let r = 1; r < arr.length; r++) {
+      arr[r][c] += arr[r - 1][c];
+    }
+  }
+  // 열 부분함
+  for (let r = 0; r < arr.length; r++) {
+    for (let c = 1; c < arr[0].length; c++) {
+      arr[r][c] += arr[r][c - 1];
+    }
+  }
+  return arr;
+};
+
+const getAnswer = (board) => {
+  return board.reduce((acc, curRow) => acc + curRow.filter((v) => v > 0).length, 0);
+};
+
+function solution(board, skill) {
+  const partialSumArr = getPartialSumArr(board, skill);
+  for (let r = 0; r < board.length; r++) {
+    for (let c = 0; c < board[0].length; c++) {
+      board[r][c] += partialSumArr[r][c];
+    }
+  }
+  return getAnswer(board);
+}
