@@ -407,6 +407,7 @@ function solution(absolutes, signs) {
   return absolutes.reduce((acc, cur, idx) => acc + cur * signs[idx], 0);
 }
 
+// 로또의 최고 순위와 최저 순위
 // https://programmers.co.kr/learn/courses/30/lessons/77484
 const countToRank = (count) => {
   if (count < 2) return 6;
@@ -420,4 +421,26 @@ function solution(lottos, win_nums) {
     if (lottos.includes(num)) count++;
   });
   return [countToRank(count + zeroCount), countToRank(count)];
+}
+
+// 없는 숫자 더하기
+// https://programmers.co.kr/learn/courses/30/lessons/86051
+function solution(numbers) {
+  const obj = Array(10)
+    .fill(null)
+    .map((_, index) => index)
+    .reduce((acc, cur) => {
+      acc[cur] = true;
+      return acc;
+    }, {});
+  numbers.forEach((number) => {
+    delete obj[number];
+  });
+  return Object.keys(obj)
+    .map((v) => +v)
+    .reduce((acc, cur) => acc + cur, 0);
+}
+
+function solution(numbers) {
+  return 45 - numbers.reduce((cur, acc) => cur + acc, 0);
 }
