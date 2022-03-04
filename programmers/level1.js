@@ -51,12 +51,7 @@ function solution(answers) {
 // K번째수
 // https://programmers.co.kr/learn/courses/30/lessons/42748
 function solution(array, commands) {
-  return commands.map(
-    (command) =>
-      array.slice(command[0] - 1, command[1]).sort((a, b) => a - b)[
-        command[2] - 1
-      ]
-  );
+  return commands.map((command) => array.slice(command[0] - 1, command[1]).sort((a, b) => a - b)[command[2] - 1]);
 }
 
 // 체육복
@@ -143,9 +138,7 @@ function solution(a, b) {
 // https://programmers.co.kr/learn/courses/30/lessons/12915
 // localeComapre도 가능. sort와 boolean연산 기억.
 function solution(strings, n) {
-  return strings.sort((a, b) =>
-    a[n] === b[n] ? (a > b) - (a < b) : (a[n] > b[n]) - (a[n] < b[n])
-  );
+  return strings.sort((a, b) => (a[n] === b[n] ? (a > b) - (a < b) : (a[n] > b[n]) - (a[n] < b[n])));
   // return strings.sort((a, b) =>
   //   a[n] === b[n] ? a.localeCompare(b) : a[n].localeCompare(b[n])
   // );
@@ -272,7 +265,7 @@ function solution(s) {
       v
         .split('')
         .map((v, i) => (i % 2 === 0 ? v.toUpperCase() : v.toLowerCase()))
-        .join('')
+        .join(''),
     )
     .join(' ');
 }
@@ -367,7 +360,7 @@ function solution(x) {
     x /
       String(x)
         .split('')
-        .reduce((acc, cur) => acc + cur * 1, 0)
+        .reduce((acc, cur) => acc + cur * 1, 0),
   );
 }
 
@@ -403,7 +396,7 @@ process.stdin.on('data', (data) => {
     Array(b)
       .fill()
       .map(() => star)
-      .join('\n')
+      .join('\n'),
   );
 });
 
@@ -412,4 +405,19 @@ process.stdin.on('data', (data) => {
 function solution(absolutes, signs) {
   signs = signs.map((v) => (v ? 1 : -1));
   return absolutes.reduce((acc, cur, idx) => acc + cur * signs[idx], 0);
+}
+
+// https://programmers.co.kr/learn/courses/30/lessons/77484
+const countToRank = (count) => {
+  if (count < 2) return 6;
+  return 7 - count;
+};
+
+function solution(lottos, win_nums) {
+  let zeroCount = lottos.filter((lotto) => lotto === 0).length;
+  let count = 0;
+  win_nums.forEach((num) => {
+    if (lottos.includes(num)) count++;
+  });
+  return [countToRank(count + zeroCount), countToRank(count)];
 }
