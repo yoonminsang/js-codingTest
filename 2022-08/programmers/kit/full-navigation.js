@@ -30,3 +30,40 @@ function solution(answers) {
   if (max === person3Count) answer.push(3);
   return answer;
 }
+
+// https://school.programmers.co.kr/learn/courses/30/lessons/42839
+// 소수찾기
+const isPrime = (num) => {
+  if (num < 2) return false;
+  for (let i = 2; i < num; i++) {
+    if (num % i === 0) return false;
+  }
+  return true;
+};
+
+const getPermutations = (arr, selectNumber) => {
+  if (selectNumber === 1) return arr.map((v) => [v]);
+  const result = [];
+  arr.forEach((fixed, index) => {
+    const permutations = getPermutations([...arr.slice(0, index), ...arr.slice(index + 1)], selectNumber - 1);
+    const permutationsWithFixed = permutations.map((permutation) => [fixed, ...permutation]);
+    result.push(...permutationsWithFixed);
+  });
+  return result;
+};
+
+function solution(numbers) {
+  numbers = numbers.split('').map(Number);
+  const set = new Set();
+  for (let i = 1; i <= numbers.length; i++) {
+    const permutations = getPermutations(numbers, i);
+    permutations.forEach((permutation) => {
+      set.add(Number(permutation.join('')));
+    });
+  }
+  let count = 0;
+  set.forEach((v) => {
+    if (isPrime(v)) count++;
+  });
+  return count;
+}
