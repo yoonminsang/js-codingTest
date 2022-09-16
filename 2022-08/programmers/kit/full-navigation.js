@@ -67,3 +67,22 @@ function solution(numbers) {
   });
   return count;
 }
+
+// https://school.programmers.co.kr/learn/courses/30/lessons/42842
+// 카펫
+// 이건 그냥 수학문제...
+// yellow : n개
+// for문 <=n/2까지비교.
+// 노란색 row i
+// 노란색 col n/i
+// 전체 row i+2
+// 전체 col = (n/i)+2
+function solution(brown, yellow) {
+  const totalCount = brown + yellow;
+  for (let i = 1; i <= Math.ceil(yellow / 2); i++) {
+    if (yellow % i !== 0) continue;
+    const row = i + 2;
+    const col = yellow / i + 2;
+    if (row * col == totalCount) return [col, row];
+  }
+}
