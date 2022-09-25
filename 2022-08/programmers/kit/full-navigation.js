@@ -86,3 +86,42 @@ function solution(brown, yellow) {
     if (row * col == totalCount) return [col, row];
   }
 }
+
+// https://school.programmers.co.kr/learn/courses/30/lessons/87946
+// 피로도
+// 처음에 visited를 그냥 dungeons를 제거해가는 방식으로 구현.
+// count도 그냥 계산하는데 이러면 나중에 헷갈릴듯. 그냥 명시적으로 count인자를 넣어주는게 더 좋을듯.
+// 아래는 visited라는 배열을 만들어서 구현.(일반적인 dfs가 아니라 완전탐색이기 때문에 visited를 토글해주는 코드로 구현)
+function solution(k, dungeons) {
+  const countArr = [0];
+  const dfs = (현재_피로도, dungeonArr) => {
+    if (dungeonArr.length === 0) return countArr.push(dungeons.length);
+    for (let i = 0; i < dungeonArr.length; i++) {
+      const [최소필요_소모도, 소모_피로도] = dungeonArr[i];
+      if (최소필요_소모도 <= 현재_피로도) {
+        dfs(현재_피로도 - 소모_피로도, [...dungeonArr.slice(0, i), ...dungeonArr.slice(i + 1)]);
+      } else {
+        countArr.push(dungeons.length - dungeonArr.length);
+      }
+    }
+  };
+  dfs(k, dungeons);
+  return Math.max(...countArr);
+}
+
+function solution(k, dungeons) {
+  let max = 0;
+  const visited = Array(dungeons.length).fill(false);
+  const dfs = (현재_피로도, count) => {
+    max = Math.max(max, count);
+    dungeons.forEach(([최소_필요_피로도, 소모_피로도], index) => {
+      if (현재_피로도 >= 최소_필요_피로도 && !visited[index]) {
+        visited[index] = true;
+        dfs(현재_피로도 - 소모_피로도, count + 1);
+        visited[index] = false;
+      }
+    });
+  };
+  dfs(k, 0);
+  return max;
+}
