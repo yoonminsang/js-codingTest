@@ -125,3 +125,73 @@ function solution(k, dungeons) {
   dfs(k, 0);
   return max;
 }
+
+// https://school.programmers.co.kr/learn/courses/30/lessons/86971
+// 전력망을 둘로 나누기
+
+const makeGraph = (n, arr) => {
+  const graph = Array(n)
+    .fill()
+    .reduce((acc, cur, idx) => {
+      acc[idx + 1] = [];
+      return acc;
+    }, {});
+  arr.forEach(([from, to]) => {
+    graph[from].push(to);
+    graph[to].push(from);
+  });
+  return graph;
+};
+
+// dfs
+const dfs = ({ node, visited, graph }) => {
+  visited[node] = true;
+  graph[node].forEach((adj) => {
+    if (!visited[adj]) dfs({ node: adj, visited, graph });
+  });
+};
+
+function solution(n, wires) {
+  let min = Infinity;
+  for (let i = 0; i < wires.length; i++) {
+    const currentWires = [...wires.slice(0, i), ...wires.slice(i + 1)];
+    const graph = makeGraph(n, currentWires);
+    const visited = Array(n + 1).fill(false);
+    dfs({ node: 1, visited, graph });
+    const count = visited.filter((v) => v === true).length;
+    const diff = Math.abs(n - count - count);
+    min = Math.min(min, diff);
+  }
+  return min;
+}
+
+// bfs
+const bfs = (root, graph) => {
+  let count = 0;
+  const queue = [root];
+  const visited = [];
+  visited[root] = true;
+  while (queue.length) {
+    const curr = queue.pop();
+    graph[curr].map((next) => {
+      if (!visited[next]) {
+        visited[next] = true;
+        queue.push(next);
+      }
+    });
+    count++;
+  }
+  return count;
+};
+
+function solution(n, wires) {
+  let min = Infinity;
+  for (let i = 0; i < n; i++) {
+    const currentWires = [...wires.slice(0, i), ...wires.slice(i + 1)];
+    const graph = makeGraph(n, currentWires);
+    const count = bfs(1, graph);
+    const diff = Math.abs(n - count - count);
+    min = Math.min(min, diff);
+  }
+  return min;
+}
