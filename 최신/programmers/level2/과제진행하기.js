@@ -50,13 +50,13 @@ function solution(plans) {
     })();
     // 현재 plan을 완료할 수 있는 경우
     if (nextPlanStatus === 's' || currTime + nowPlan.remainTime <= nextPlan.startTime) {
-      if (nowPlanStatus === 'f') result.push(filteredPlans.splice(0, 1)[0].name);
-      else result.push(stoppedPlans.splice(stoppedPlans.length - 1, 1)[0].name);
+      if (nowPlanStatus === 'f') result.push(filteredPlans.shift().name);
+      else result.push(stoppedPlans.pop().name);
     }
     // 현재 plan을 완료할 수 없는 경우
     else {
       nowPlan.remainTime -= nextPlan.startTime - currTime;
-      if (nowPlanStatus === 'f') stoppedPlans.push(filteredPlans.splice(0, 1)[0]);
+      if (nowPlanStatus === 'f') stoppedPlans.push(filteredPlans.shift());
     }
     currTime = (() => {
       if (nextPlanStatus === 'f') return nextPlan.startTime;
