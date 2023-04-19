@@ -1,5 +1,8 @@
 // https://school.programmers.co.kr/learn/courses/30/lessons/176962
 
+// 첫번째 시도 힘겹게 성공
+// 성공은 했지만 굉장히 복잡하게 풀었음.
+
 const timeToMinute = (time) => {
   const [hour, minute] = time.split(':').map(Number);
   return hour * 60 + minute;
@@ -64,4 +67,29 @@ function solution(plans) {
     })();
   }
   return result;
+}
+// 두번째 시도. 정확히는 다른 사람의 풀이를 참고해서 품.
+
+function solution(plans) {
+  const result = [];
+  const filteredPlans = getFilteredPlans(plans);
+  const stoppedPlans = []; // stack
+  let currTime = 0;
+  filteredPlans.forEach((plan) => {
+    let lastStoppedPlan = stoppedPlans.at(-1);
+    while (lastStoppedPlan) {
+      const diff = plan.startTime - currTime;
+      if (diff < lastStoppedPlan.remainTime) {
+        lastStoppedPlan.remainTime -= diff;
+        break;
+      }
+      const temp = stoppedPlans.pop();
+      currTime += temp.remainTime;
+      result.push(temp.name);
+      lastStoppedPlan = stoppedPlans.at(-1);
+    }
+    currTime = plan.startTime;
+    stoppedPlans.push(plan);
+  });
+  return [...result, ...stoppedPlans.map(({ name }) => name).reverse()];
 }
